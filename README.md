@@ -11,4 +11,11 @@
 **Application overview:** SweatTogether is a web app that allows people to find workout partners by creating a profile, indicating their preferences, browsing other profiles with compatibility ratings, and messaging potential workout partners.
 
 **Setup instructions:**
-_To be added later_
+
+To run the application execute the following commands:
+
+```
+cd front-end
+npm install
+npm run dev
+```
