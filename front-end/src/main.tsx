@@ -1,9 +1,20 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
+import Explore from './pages/Explore.tsx'
+import Messaging from './pages/Messaging.tsx'
+import Profile from './pages/Profile.tsx'
+//import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router";
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+  <BrowserRouter>
+    <StrictMode>
+      <Routes>
+        <Route path="/" element={<Explore />} />
+        <Route path="messaging" element={<Messaging />} />
+        <Route path="profile" element={<Profile />} />
+      </Routes>
+    </StrictMode>
+  </BrowserRouter>
+  ,
 )
