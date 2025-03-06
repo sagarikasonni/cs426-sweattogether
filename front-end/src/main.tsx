@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import Explore from './pages/Explore.tsx'
 import Messaging from './pages/Messaging.tsx'
 import Profile from './pages/Profile.tsx'
-//import ReactDOM from "react-dom/client";
+import './styles.css'
 import { BrowserRouter, Routes, Route } from "react-router";
 
 createRoot(document.getElementById('root')!).render(
