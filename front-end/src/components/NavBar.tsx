@@ -8,9 +8,9 @@ function NavBar() {
     ];
 
     return (
-        <nav className="bg-gray-800 p-4 shadow-md flex justify-between items-center">
+        <nav className="bg-gray-800 p-4 shadow-md flex flex-col md:flex-row justify-between items-center">
             <h1 className="text-white text-lg font-bold">SweatTogether</h1>
-            <ul className="flex space-x-6 text-white font-medium">
+            <ul className="flex space-x-5 text-white font-medium">
                 {navLinks.map(({ to, label, end }) => (
                     <li key={to}>
                         <NavLink 
