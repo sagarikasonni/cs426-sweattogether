@@ -5,9 +5,14 @@ import FilterBar from '../components/FilterBar.tsx';
 
 function Explore() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sortOption, setSortOption] = useState<'name-az' | 'level-low-high' | 'level-high-low'>('name-az'); // Default sort by name (A-Z)
 
   const toggleFilter = () => {
     setIsFilterOpen(() => !isFilterOpen);
+  };
+
+  const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOption(() => event.target.value as 'name-az' | 'level-low-high' | 'level-high-low');
   };
 
   const profileData = [
@@ -46,6 +51,22 @@ function Explore() {
     },
   ];
 
+  // Sorting the profileData based on selected sortOption
+  const sortedProfiles = [...profileData].sort((a, b) => {
+    if (sortOption === 'name-az') {
+      return a.name.localeCompare(b.name); // Sort by name alphabetically (A-Z)
+    }
+    if (sortOption === 'level-low-high') {
+      const levels = ['Beginner', 'Intermediate', 'Advanced'];
+      return levels.indexOf(a.level) - levels.indexOf(b.level); // Sort by level (low to high)
+    }
+    if (sortOption === 'level-high-low') {
+      const levels = ['Beginner', 'Intermediate', 'Advanced'];
+      return levels.indexOf(b.level) - levels.indexOf(a.level); // Sort by level (high to low)
+    }
+    return 0;
+  });
+
   return (
     <>
       <NavBar />
@@ -61,26 +82,43 @@ function Explore() {
         {/* Filter Bar */}
         <FilterBar isFilterOpen={isFilterOpen} />
 
-        {/* Profile Cards Section */}
-        <div
-          className="flex-1 p-4 transition-transform duration-300 max-w-full overflow-x-auto"
-          onClick={() => isFilterOpen && toggleFilter()}
-        >
-          <div className="flex flex-wrap gap-8 justify-center">
-            {profileData.map((profile) => (
-              <ProfileCard
-                key={profile.id}
-                id={profile.id}
-                name={profile.name}
-                bio={profile.bio}
-                location={profile.location}
-                level={profile.level}
-                gender={profile.gender}
-                zip={profile.zip}
-                workoutTypes={profile.workoutTypes}
-                image={profile.image}
-              />
-            ))}
+        <div>
+          {/* Sorting Dropdown below the NavBar but above the profiles */}
+          <div className="p-4 flex justify-end">
+            <label htmlFor="sort" className="mr-2">Sort by:</label>
+            <select
+              id="sort"
+              value={sortOption}
+              onChange={handleSortChange}
+              className="border rounded"
+            >
+              <option value="name-az">Name (A-Z)</option>
+              <option value="level-low-high">Level (Low to High)</option>
+              <option value="level-high-low">Level (High to Low)</option>
+            </select>
+          </div>
+
+          {/* Profile Cards Section */}
+          <div
+            className="flex-1 p-4 transition-transform duration-300 max-w-full overflow-x-auto"
+            onClick={() => isFilterOpen && toggleFilter()}
+          >
+            <div className="flex flex-wrap gap-8 justify-center">
+              {sortedProfiles.map((profile) => (
+                <ProfileCard
+                  key={profile.id}
+                  id={profile.id}
+                  name={profile.name}
+                  bio={profile.bio}
+                  location={profile.location}
+                  level={profile.level}
+                  gender={profile.gender}
+                  zip={profile.zip}
+                  workoutTypes={profile.workoutTypes}
+                  image={profile.image}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen }) => {
     // Show filter bar on medium or larger screens or if it has been toggled on
     return (
         <div
-        className={`static min-h-screen bg-gray-200 p-4
+        className={`static min-h-screen bg-gray-200 p-4 w-120
           ${isFilterOpen ? '' : 'hidden'}
           md:block`}
         >
