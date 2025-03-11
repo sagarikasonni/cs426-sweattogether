@@ -14,7 +14,7 @@ function ProfileCard({ name, bio, location, image }: ProfileCardProps) {
     const truncatedBio = bio.length > 40 ? `${bio.substring(0, 37)}...` : bio;
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow w-60 flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow flex flex-col justify-between lg:w-1/6 md:w-1/4 sm:w-1/3 xs:w-3/4">
             <img
                 src={image}
                 alt="Profile"
