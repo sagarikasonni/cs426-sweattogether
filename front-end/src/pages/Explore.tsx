@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import NavBar from '../components/NavBar.tsx';
 import ProfileCard from '../components/ProfileCard.tsx';
 import FilterBar from '../components/FilterBar.tsx';
 import { filterProfiles, sortProfiles, SortOption } from '../utils/ProfileUtils.ts';
 import profileData from '../mockData/MockProfiles.ts';
+import { ProfileModel } from '../data/ProfileModel.ts';
 
 function Explore() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [profiles, setProfiles] = useState<ProfileModel[]>(profileData);
   const [sortOption, setSortOption] = useState<SortOption>('name-az');
   const [filters, setFilters] = useState<any>({
     levels: [],
@@ -28,8 +30,19 @@ function Explore() {
   };
 
   // Use profile utils to filter and sort cards
-  const filteredProfiles = filterProfiles(profileData, filters);
-  const sortedProfiles = sortProfiles(filteredProfiles, sortOption);
+  const getFilteredAndSortedProfiles = async () => {
+    const filteredProfiles = await filterProfiles(profileData, filters, "01003");
+    const sortedProfiles = sortProfiles(filteredProfiles, sortOption);
+    return sortedProfiles;
+  };
+
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      const sortedProfiles = await getFilteredAndSortedProfiles();
+      setProfiles(() => sortedProfiles);
+    };
+    fetchProfiles();
+  }, [filters, sortOption]);
 
   return (
     <>
@@ -62,8 +75,8 @@ function Explore() {
             className="flex flex-wrap gap-8 p-4 justify-center transition-transform duration-300 max-w-full overflow-x-auto"
             onClick={() => isFilterOpen && toggleFilter()}
           >
-            {sortedProfiles.length > 0 ? (
-              sortedProfiles.map((profile) => (
+            {profiles.length > 0 ? (
+              profiles.map((profile) => (
                 <ProfileCard
                   key={profile.id}
                   id={profile.id}
@@ -73,7 +86,7 @@ function Explore() {
                   gender={profile.gender}
                   location={profile.location}
                   level={profile.level}
-                  workout_preferences={profile.workoutTypes}
+                  workout_preferences={profile.workout_preferences}
                   bio={profile.bio}
                 />
               ))
