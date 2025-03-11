@@ -1,11 +1,13 @@
+import { ProfileModel, WorkoutModel } from "../data/ProfileModel";
+
 export type SortOption = 'name-az' | 'level-low-high' | 'level-high-low';
 
-export const filterProfiles = (profiles: any[], filters: any) => {
+export const filterProfiles = (profiles: ProfileModel[], filters: any) => {
     return profiles.filter(profile => {
         const matchesLevel = filters.levels.length === 0 || filters.levels.includes(profile.level);
         const matchesGender = filters.genders.length === 0 || filters.genders.includes(profile.gender);
         const matchesDistance = true; // TODO: implement distance logic
-        const matchesWorkoutTypes = filters.workoutTypes.length === 0 || filters.workoutTypes.some((type: string) => profile.workoutTypes.includes(type));
+        const matchesWorkoutTypes = filters.workoutTypes.length === 0 || filters.workoutTypes.some((type: WorkoutModel) => profile.workout_preferences.includes(type));
         return matchesLevel && matchesGender && matchesDistance && matchesWorkoutTypes;
     });
 };

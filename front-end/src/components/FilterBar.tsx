@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Workouts from '../data/Workouts.ts';
 
 interface FilterBarProps {
     isFilterOpen: boolean;
@@ -11,6 +12,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) =
     const [maxDistance, setMaxDistance] = useState<number | null>(null);
     const [workoutTypes, setWorkoutTypes] = useState<string[]>([]);
 
+    // on filter bar changes, run passed in function
     const handleLevelChange = (level: string) => {
         const newLevels = levels.includes(level)
             ? levels.filter(l => l !== level)
@@ -96,7 +98,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) =
                 <div className="mb-4">
                     <h3 className="text-sm font-medium text-gray-700">Workout Type</h3>
                     <div className="flex flex-col space-y-2">
-                        {['Running', 'Yoga', 'Swimming', 'Weightlifting', 'Dance'].map(type => (
+                    {Workouts.map(type => (
                             <label key={type} className="flex items-center">
                                 <input
                                     type="checkbox"
@@ -109,6 +111,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) =
                         ))}
                     </div>
                 </div>
+
             </form>
         </div>
     );

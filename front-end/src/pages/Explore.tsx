@@ -3,6 +3,7 @@ import NavBar from '../components/NavBar.tsx';
 import ProfileCard from '../components/ProfileCard.tsx';
 import FilterBar from '../components/FilterBar.tsx';
 import { filterProfiles, sortProfiles, SortOption } from '../utils/ProfileUtils.ts';
+import profileData from '../mockData/MockProfiles.ts';
 
 function Explore() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -26,42 +27,7 @@ function Explore() {
     setFilters(() => newFilters);
   };
 
-  const profileData = [
-    {
-      id: 1,
-      name: 'John Doe',
-      bio: 'Strength training and cardio enthusiast',
-      location: 'New York, NY',
-      level: 'Intermediate',
-      gender: 'Male',
-      zip: '01003',
-      workoutTypes: ['Strength', 'Cardio'],
-      image: 'https://placehold.co/150x150',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      bio: 'Yoga lover and fitness enthusiast',
-      location: 'Los Angeles, CA',
-      level: 'Beginner',
-      gender: 'Female',
-      zip: '01003',
-      workoutTypes: ['Yoga'],
-      image: 'https://placehold.co/600x400',
-    },
-    {
-      id: 3,
-      name: 'Sam Lee',
-      bio: 'Running and outdoor workouts expert',
-      location: 'Chicago, IL',
-      level: 'Advanced',
-      gender: 'Male',
-      zip: '01003',
-      workoutTypes: ['Running', 'Outdoor Workouts'],
-      image: 'https://placehold.co/600x400',
-    }
-  ];
-
+  // Use profile utils to filter and sort cards
   const filteredProfiles = filterProfiles(profileData, filters);
   const sortedProfiles = sortProfiles(filteredProfiles, sortOption);
 
@@ -93,29 +59,27 @@ function Explore() {
           </div>
 
           <div
-            className="flex p-4 transition-transform duration-300 max-w-full overflow-x-auto"
+            className="flex flex-wrap gap-8 p-4 justify-center transition-transform duration-300 max-w-full overflow-x-auto"
             onClick={() => isFilterOpen && toggleFilter()}
           >
-            <div className="flex flex-wrap gap-8 justify-center">
-              {sortedProfiles.length > 0 ? (
-                sortedProfiles.map((profile) => (
-                  <ProfileCard
-                    key={profile.id}
-                    id={profile.id}
-                    name={profile.name}
-                    bio={profile.bio}
-                    location={profile.location}
-                    level={profile.level}
-                    gender={profile.gender}
-                    zip={profile.zip}
-                    workoutTypes={profile.workoutTypes}
-                    image={profile.image}
-                  />
-                ))
-              ) : (
-                <p>No profiles to display. Try adjusting your filters.</p>
-              )}
-            </div>
+            {sortedProfiles.length > 0 ? (
+              sortedProfiles.map((profile) => (
+                <ProfileCard
+                  key={profile.id}
+                  id={profile.id}
+                  image={profile.image}
+                  name={profile.name}
+                  age={profile.age}
+                  gender={profile.gender}
+                  location={profile.location}
+                  level={profile.level}
+                  workout_preferences={profile.workoutTypes}
+                  bio={profile.bio}
+                />
+              ))
+            ) : (
+              <p>No profiles to display. Try adjusting your filters.</p>
+            )}
           </div>
         </div>
       </div>
