@@ -1,7 +1,11 @@
 import { ProfileModel, WorkoutModel } from "../data/ProfileModel";
-import Levels from "../data/Levels";
+import Levels from "../consts/Levels";
+import CountryModel from "../data/CountryModel";
+import countryCodeMap from "../consts/CountryCodeMap";
 
 export type SortOption = 'name-az' | 'level-low-high' | 'level-high-low';
+
+const COORD_ERROR_CODE = 99999 // Exceeds maximum lat or long -- used so API can fail silently
 
 // Utility function to calculate distance between two coordinates (Haversine formula)
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -19,18 +23,26 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
 };
 
 // Get coordinates from a zip code
-const getCoordinatesFromZip = async (zipCode: string): Promise<{ lat: number, lon: number }> => {
-    const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-    const data = await response.json();
-    return {
-        lat: parseFloat(data.places[0].latitude),
-        lon: parseFloat(data.places[0].longitude)
+const getCoordinatesFromZip = async (zipCode: string, country: CountryModel): Promise<{ lat: number, lon: number }> => {
+    try {
+        const response = await fetch(`https://api.zippopotam.us/${countryCodeMap[country]}/${zipCode}`);
+        const data = await response.json();
+        return {
+            lat: parseFloat(data.places[0].latitude),
+            lon: parseFloat(data.places[0].longitude)
+        };
+    } catch (error) {
+        // Return
+        return {
+            lat: COORD_ERROR_CODE,
+            lon: COORD_ERROR_CODE
+        }
     };
 };
 
-export const filterProfiles = async (profiles: ProfileModel[], filters: any, userZipCode: string) => {
+export const filterProfiles = async (profiles: ProfileModel[], filters: any, userZipCode: string, userCountry: CountryModel) => {
     // Get coordinates of the user's zip code
-    const userCoordinates = await getCoordinatesFromZip(userZipCode);
+    const userCoordinates = await getCoordinatesFromZip(userZipCode, userCountry);
 
     // Use Promise.all to process profiles asynchronously
     const filteredProfiles = await Promise.all(profiles.map(async profile => {
@@ -40,8 +52,8 @@ export const filterProfiles = async (profiles: ProfileModel[], filters: any, use
             filters.workoutTypes.some((type: WorkoutModel) => profile.workout_preferences.includes(type));
 
         let matchesDistance = true;
-        if (filters.maxDistance && profile.location.zip_code) {
-            const profileCoordinates = await getCoordinatesFromZip(profile.location.zip_code);
+        if (filters.maxDistance && profile.location.zip_code && userCoordinates.lat != COORD_ERROR_CODE && userCoordinates.lon != COORD_ERROR_CODE) {
+            const profileCoordinates = await getCoordinatesFromZip(profile.location.zip_code, profile.location.country);
             const distance = calculateDistance(
                 userCoordinates.lat, userCoordinates.lon,
                 profileCoordinates.lat, profileCoordinates.lon

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Workouts from '../data/Workouts.ts';
+import Workouts from '../consts/Workouts.ts';
 
 interface FilterBarProps {
     isFilterOpen: boolean;

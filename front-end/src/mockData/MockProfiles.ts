@@ -10,7 +10,7 @@ const profileData: ProfileModel[] = [
         location: {
             city: "New York",
             state: "NY",
-            country: "USA",
+            country: "United States",
             zip_code: "11004",
         },
         level: "Beginner",

@@ -31,7 +31,7 @@ function Explore() {
 
   // Use profile utils to filter and sort cards
   const getFilteredAndSortedProfiles = async () => {
-    const filteredProfiles = await filterProfiles(profileData, filters, "01003");
+    const filteredProfiles = await filterProfiles(profileData, filters, "01003", "United States"); // TODO implement profile zip and country
     const sortedProfiles = sortProfiles(filteredProfiles, sortOption);
     return sortedProfiles;
   };

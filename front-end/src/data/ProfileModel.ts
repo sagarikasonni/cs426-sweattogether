@@ -1,5 +1,6 @@
-import Workouts from './Workouts.ts'
-import Levels from './Levels.ts'
+import Workouts from '../consts/Workouts.ts'
+import Levels from '../consts/Levels.ts'
+import CountryModel from './CountryModel.ts';
 
 type ProfileModel ={
     id: number;
@@ -18,7 +19,7 @@ type LevelModel = typeof Levels[number];
 type Location ={
     city?: string | null; // city is an optional field
     state?: string | null; // state is an optional field
-    country: string;
+    country: CountryModel;
     zip_code: string;
 }
 
