@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Workouts from '../data/Workouts.ts';
+import Workouts from '../consts/Workouts.ts';
 
 interface FilterBarProps {
     isFilterOpen: boolean;
@@ -84,7 +84,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) =
 
                 {/* Max Distance */}
                 <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700">Max Distance (miles)</label>
+                    <label className="block text-sm font-medium text-gray-700">Max Distance (km)</label>
                     <input
                         type="number"
                         value={maxDistance || ''}
