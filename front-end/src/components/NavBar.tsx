@@ -4,7 +4,8 @@ function NavBar() {
     const navLinks = [
         { to: "/", label: "Home", end: true },
         { to: "/profile", label: "My Profile", end: true },
-        { to: "/messaging", label: "Chat" }
+        { to: "/messaging", label: "Chat" },
+        { to: "/authentication", label: "Sign in" }
     ];
 
     return (
