@@ -18,7 +18,7 @@ type LevelModel = typeof Levels[number];
 
 type Location ={
     city?: string | null; // city is an optional field
-    state?: string | null; // state is an optional field
+    state?: string | null; // state is an optional field, can also serve as region/province
     country: CountryModel;
     zip_code: string;
 }
