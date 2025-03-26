@@ -42,10 +42,9 @@ createRoot(document.getElementById('root')!).render(
           {/* Profile page routing */}
           <Route path="profile"
           element = {
-            // <ProtectedRoute>
-            //   <Profile/>
-            // </ProtectedRoute>
-            <Profile/>
+            <ProtectedRoute>
+              <Profile/>
+            </ProtectedRoute>
           }/>
       </Routes>
       </AuthProvider>

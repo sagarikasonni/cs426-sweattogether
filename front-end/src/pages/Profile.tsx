@@ -18,16 +18,15 @@ function Profile() {
         location: {
             city: '',
             state: '',
-            country: '' as CountryModel,
+            country: Countries[0] as CountryModel,
             zip_code: ''
         },
-        level: '' as LevelModel,
+        level: Levels[0] as LevelModel,
         workout_preferences: [],
         bio: ''
     })
 
-    const genders = ['Male', 'Female', 'Others'] as const
-    // const [error, setError] = useState("")
+    const genders = ['Male', 'Female', 'Other'] as const
     // TODO: Add pronouns as a dropdown
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -58,7 +57,7 @@ function Profile() {
         })
     }
 
-    // currently only select one checkbox
+    // currently set to only select one checkbox
     const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value, checked } = e.target
       if (checked) {
@@ -79,8 +78,15 @@ function Profile() {
 
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault()
+      
       if (!profile.name) {
-        alert("Please fill out this field")
+        alert("Please fill out the name field!")
+        return
+      }
+
+      // Age has to be an integer
+      if (profile.age % 1 !== 0) {
+        alert("Age has to be an integer")
         return
       }
 
@@ -92,25 +98,25 @@ function Profile() {
 
       // Zip code needs to be 5-digit 
       if (profile.location.zip_code.length < 5) {
-        alert("Zip Code has to be a 5-digit")
+        alert("Zip Code has to be a 5-digit number")
         return 
       }
 
       // Zip code needs to be a positive number
       if (Number(profile.location.zip_code) < 0) {
-        alert("Zip Code needs positive")
+        alert("Zip Code needs to be positive")
         return
       }
 
       // Zip code needs to be an interger
       if (!Number.isInteger(Number(profile.location.zip_code))) {
-        alert("Zip code needs to an integer")
+        alert("Zip code needs to be an integer")
         return
       }
 
       setProfile(profile)
       
-      alert("Profile saved succussfully")
+      alert("Profile saved successfully!")
     }
 
     return (
