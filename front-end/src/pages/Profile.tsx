@@ -25,7 +25,11 @@ function Profile() {
         workout_preferences: [],
         bio: ''
     })
-    
+
+    const genders = ['Male', 'Female', 'Others'] as const
+    // const [error, setError] = useState("")
+    // TODO: Add pronouns as a dropdown
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         if (name in profile.location) {
@@ -54,6 +58,14 @@ function Profile() {
         })
     }
 
+    // currently only select one checkbox
+    const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value, checked } = e.target
+      if (checked) {
+        setProfile(prevProfile => ({ ...prevProfile, gender: value }))
+      }
+    }
+
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
@@ -66,8 +78,39 @@ function Profile() {
     }
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        console.log(profile)
+      e.preventDefault()
+      if (!profile.name) {
+        alert("Please fill out this field")
+        return
+      }
+
+      // Age has to be a positive number 
+      if (profile.age < 0) {
+        alert("Age has to be a positive number")
+        return
+      }
+
+      // Zip code needs to be 5-digit 
+      if (profile.location.zip_code.length < 5) {
+        alert("Zip Code has to be a 5-digit")
+        return 
+      }
+
+      // Zip code needs to be a positive number
+      if (Number(profile.location.zip_code) < 0) {
+        alert("Zip Code needs positive")
+        return
+      }
+
+      // Zip code needs to be an interger
+      if (!Number.isInteger(Number(profile.location.zip_code))) {
+        alert("Zip code needs to an integer")
+        return
+      }
+
+      setProfile(profile)
+      
+      alert("Profile saved succussfully")
     }
 
     return (
@@ -97,8 +140,15 @@ function Profile() {
               </div>
               {/* Gender */}
               <div className="mb-4">
-                <label className="text-xl font-medium text-gray-700">Gender: </label>
-                <input type="text" name="gender" value={profile.gender} onChange={handleInputChange} className="border rounded w-64 p-2" />
+                <label className="text-xl font-medium text-gray-700">Workout Preferences: </label>
+                <div className="grid gap-2">
+                  {genders.map(g => (
+                    <label key={g} className="flex items-center space-x-2">
+                      <input type="checkbox" value={g} checked={profile.gender.includes(g)} onChange={handleGenderChange} className="w-4 h-4" />
+                      <span>{g}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               {/* City */}
               <div className="mb-4">
@@ -151,7 +201,7 @@ function Profile() {
                 <textarea name="bio" value={profile.bio} onChange={handleInputChange} className="border rounded w-full p-2 resize-none" rows={3}></textarea>
               </div>
               {/* Submit  Button*/}
-              <button type="submit" className="w-20 bg-gray-500 text-white p-2 rounded mt-auto">Submit</button>
+              <button onClick={handleSubmit} className="w-20 bg-gray-500 text-white p-2 rounded mt-auto">Submit</button>
             </div>
           </form>
         </div>

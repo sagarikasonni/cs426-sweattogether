@@ -5,7 +5,7 @@ import { MockUsers } from "../mockData/MockUsers";
 import logo from "../assets/logo.png"
 
 function Authentication() {
-    const { isAuth, setIsAuth } = useAuth()
+    const { setIsAuth } = useAuth()
     const [isLogin, setIsLogin] = useState(true)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -21,11 +21,13 @@ function Authentication() {
             return
         }
 
+        // Check to be a valid email
         if (!/\S+@\S+\.\S+/.test(email)) {
             setError("Please enter a valid email address")
             return
         }
 
+        // Password has to be greater than 6 characters 
         if (password.length < 6) {
             setError("Password must be at least 6 characters long")
             return
