@@ -3,7 +3,7 @@ import { ProfileModel } from "../data/ProfileModel";
 const profileData: ProfileModel[] = [
     {
         id: 1,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVv3z-qdrQcOLy1SDW3Y0abdEQsgHW_Bu23A&s",
+        image: "https://placehold.co/150x150",
         name: "Alice",
         age: 30,
         gender: "Female",
@@ -19,7 +19,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 2,
-        image: "https://images.pexels.com/photos/39866/entrepreneur-startup-start-up-man-39866.jpeg",
+        image: "https://placehold.co/150x150",
         name: "John",
         age: 22,
         gender: "Male",
@@ -35,7 +35,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 3,
-        image: "https://freerangestock.com/sample/152938/a-group-of-people-with-backpacks.jpg",
+        image: "https://placehold.co/150x150",
         name: "Bob",
         age: 32,
         gender: "Male",
@@ -51,7 +51,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 4,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAYJuwFoYWYcTT6lgqunl9JdSzWQNU-j40CQ&s",
+        image: "https://placehold.co/150x150",
         name: "Jane",
         age: 26,
         gender: "Female",
@@ -67,7 +67,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 5,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHIDGbMRABFFP6z6hBQClQmMKA1QqjqhNYRw&s",
+        image: "https://placehold.co/150x150",
         name: "Michael",
         age: 30,
         gender: "Male",
@@ -83,7 +83,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 6,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgBeOKmbfE8VBojClOCyg73bVh-1BWHQWlww&s",
+        image: "https://placehold.co/150x150",
         name: "Julie",
         age: 20,
         gender: "Female",
@@ -99,7 +99,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 7,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlY1Kd3aC7BqbPsYM0CO4Tm640xeRpmWvgtA&s",
+        image: "https://placehold.co/150x150",
         name: "Maria",
         age: 27,
         gender: "Female",
@@ -115,7 +115,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 8,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTTL6dUdZpcG3qmC2xyI-taMHV4IelTZg03Q&s",
+        image: "https://placehold.co/150x150",
         name: "Felix",
         age: 30,
         gender: "Nonbinary",
@@ -131,7 +131,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 9,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh6Z7cpOOJPkUEtFrRRBSJymgkuoBBEk3dCQ&s",
+        image: "https://placehold.co/150x150",
         name: "Isabella",
         age: 28,
         gender: "Female",
@@ -147,7 +147,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 10,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoebAuvQZ7XRQ18wUCghd9K_FYqBs0SkhEAg&s",
+        image: "https://placehold.co/150x150",
         name: "George",
         age: 32,
         gender: "Male",
@@ -163,7 +163,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 11,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZV1torLuc1utxlFsTi72_XAQo0tjz_wz2xw&s",
+        image: "https://placehold.co/150x150",
         name: "Jordan",
         age: 23,
         gender: "Nonbinary",
@@ -179,7 +179,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 12,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiI-rIfvECAlLEkWHOGv-nLpfE4vIENfN2-Q&s",
+        image: "https://placehold.co/150x150",
         name: "Riley",
         age: 20,
         gender: "Nonbinary",
@@ -195,7 +195,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 13,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8e1RoMRZlL-VQZ2qFfgWleHRSVHsXaYsSVQ&s",
+        image: "https://placehold.co/150x150",
         name: "Aparna",
         age: 24,
         gender: "Female",
@@ -209,7 +209,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 14,
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnUGFOdiHVrD4ds6Sqg7w1aSWSK88HO6bsnA&s",
+        image: "https://placehold.co/150x150",
         name: "Alice",
         age: 30,
         gender: "Female",
