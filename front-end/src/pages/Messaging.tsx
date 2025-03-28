@@ -23,29 +23,31 @@ export default function Messaging() {
     if (newMessage.trim() && activeProfile) {
       const message: Message = {
         id: messages.length + 1,
-        content: newMessage,
+      content: newMessage,
         senderId: CURRENT_USER_ID,
         receiverId: activeProfile.id,
-        timestamp: new Date(),
+      timestamp: new Date(),
         isRead: true
-      }
-      setMessages([...messages, message])
-      setNewMessage("")
     }
+      setMessages([...messages, message])
+    setNewMessage("")
+  }
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="flex-1">
-        <ChatMessages
-          activeProfile={activeProfile || null}
-          messages={messages}
-          newMessage={newMessage}
-          onNewMessageChange={setNewMessage}
-          onSendMessage={handleSendMessage}
-          currentUserId={CURRENT_USER_ID}
-        />
+    <main className="min-h-screen w-full">
+      <div className="container mx-auto h-screen max-w-6xl px-4">
+        <div className="h-full flex flex-col">
+          <ChatMessages
+            activeProfile={activeProfile || null}
+            messages={messages}
+            newMessage={newMessage}
+            onNewMessageChange={setNewMessage}
+            onSendMessage={handleSendMessage}
+            currentUserId={CURRENT_USER_ID}
+          />
+        </div>
       </div>
-    </div>
+    </main>
   )
 }
