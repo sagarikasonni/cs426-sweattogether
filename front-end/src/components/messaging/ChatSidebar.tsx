@@ -53,7 +53,7 @@ export function ChatSidebar({
             return (
               <div
                 key={conversation.id}
-                className={`flex items-center p-3 cursor-pointer border-l-4 ${
+                className={`flex items-center px-4 py-2 cursor-pointer border-l-4 ${
                   isActive
                     ? "bg-blue-50 border-blue-500"
                     : "hover:bg-gray-50 border-transparent"
@@ -61,14 +61,14 @@ export function ChatSidebar({
                 onClick={() => onChatSelect(otherParticipant.id)}
               >
                 {/* Avatar */}
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <img
                     src={otherParticipant.image}
                     alt={otherParticipant.name}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-10 h-10 rounded-full object-cover"
                   />
                   {conversation.unreadCount > 0 && !isActive && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
                       <span className="text-xs text-white font-medium">{conversation.unreadCount}</span>
                     </span>
                   )}
