@@ -8,10 +8,13 @@ import ChatMessages from '../components/messaging/ChatMessages';
 const currentUserId = 0;
 const chatIds = [1, 2, 3, 6];
 
-const chats = chatIds.map((id) => ({
-  id,
-  profile: profileData.find((profile) => profile.id === id) || { name: 'Unknown', image: 'https://placehold.co/200x200' },
-}));
+const chats = chatIds.reduce((acc, id) => {
+  acc[id] = {
+    id,
+    profile: profileData.find((profile) => profile.id === id) || { name: 'Unknown', image: 'https://placehold.co/200x200' },
+  };
+  return acc;
+}, {} as { [key: number]: { id: number, profile: { name: string, image: string } } });
 
 function Messaging() {
   const [selectedChat, setSelectedChat] = useState<number>(1);
@@ -43,7 +46,7 @@ function Messaging() {
       <div className="flex h-screen">
         {/* ChatSidebar Component */}
         <ChatSidebar
-          chats={chats}
+          chats={Object.values(chats)}
           selectedChat={selectedChat}
           handleChatSelect={handleChatSelect}
         />
@@ -51,7 +54,7 @@ function Messaging() {
         {/* ChatMessages Component */}
         <ChatMessages
           messages={messages}
-          selectedChat={selectedChat}
+          chatProfile={chats[selectedChat]?.profile}
           handleSend={handleSend}
           input={input}
           setInput={setInput}

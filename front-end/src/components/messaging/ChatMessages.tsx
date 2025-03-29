@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import profileData from '../../mockData/MockProfiles';
 
 interface Message {
   senderId: number;
@@ -8,7 +7,7 @@ interface Message {
 
 interface ChatMessagesProps {
   messages: Message[];
-  selectedChat: number;
+  chatProfile: { name: string; image: string };
   handleSend: () => void;
   input: string;
   setInput: React.Dispatch<React.SetStateAction<string>>;
@@ -17,7 +16,7 @@ interface ChatMessagesProps {
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({
   messages,
-  selectedChat,
+  chatProfile,
   handleSend,
   input,
   setInput,
@@ -34,14 +33,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   return (
     <div className="w-3/4 p-4 flex flex-col h-full w-full">
       <h2 className="text-xl font-bold mb-4 flex items-center">
-        {profileData[selectedChat] ? (
+        {chatProfile ? (
           <>
             <img 
-              src={profileData[selectedChat].image} 
-              alt={profileData[selectedChat].name}
+              src={chatProfile.image} 
+              alt={chatProfile.name}
               className="rounded-full object-cover p-4"
             />
-            {profileData[selectedChat].name}
+            {chatProfile.name}
           </>
         ) : (
           'Select a chat'
