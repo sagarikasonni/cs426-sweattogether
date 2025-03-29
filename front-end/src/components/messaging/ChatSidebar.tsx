@@ -25,19 +25,18 @@ export function ChatSidebar({
   currentUserId
 }: ChatSidebarProps) {
   return (
-    <div className="w-[320px] flex-shrink-0 flex flex-col border-r border-gray-200 bg-white">
+    <div className="static min-h-screen bg-gray-200 p-4">
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-4">Messages</h1>
+        <h1 className="text-2xl font-semibold text-gray-800 mb-4 text-center">Messages</h1>
         <div className="relative">
           <input
             type="text"
-            placeholder="Search messages"
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="🔍 Search messages"
+            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
-          <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
       </div>
 

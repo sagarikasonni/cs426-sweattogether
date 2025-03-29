@@ -66,7 +66,9 @@ export function ChatMessages({
       {/* Messages container */}
       <div className="flex-1 w-full h-full flex items-center justify-center">
         {messages.length === 0 ? (
-          <p className="text-gray-500 text-lg">No messages yet. Start the conversation!</p>
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-gray-500 text-lg">No messages yet. Start the conversation!</p>
+          </div>
         ) : (
           <div className="w-full h-full overflow-y-auto p-4">
             <div className="space-y-4">
@@ -101,7 +103,7 @@ export function ChatMessages({
       </div>
 
       {/* Message input */}
-      <div className="w-full border-t p-4">
+      <div className="w-full border-t py-4">
         <form onSubmit={onSendMessage} className="w-full flex space-x-2">
           <input
             type="text"
