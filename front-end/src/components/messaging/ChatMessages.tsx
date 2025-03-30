@@ -61,7 +61,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
             {chatProfile.name}
           </>
         ) : (
-          'Select a chat'
+          'Select a conversation from the sidebar or start a new one.'
         )}
       </h2>
       <div className="p-4 overflow-y-auto rounded-lg flex flex-col h-full">
@@ -106,7 +106,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         {/* This div will serve as the scroll-to point */}
         <div ref={messagesEndRef} />
       </div>
-      <div className="mt-4 flex gap-2 flex-shrink-0">
+      <div className="mt-4 flex gap-2 flex-shrink-0 bottom-0">
         <input
           type="text"
           className="border p-2 flex-1 rounded-lg w-full"
