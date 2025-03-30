@@ -5,7 +5,7 @@ import Explore from './pages/Explore.tsx'
 import Messaging from './pages/Messaging.tsx'
 import Profile from './pages/Profile.tsx'
 import './styles.css'
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { AuthProvider, useAuth } from './context/AuthContext.tsx'
 
 function ProtectedRoute({children} : {children: JSX.Element }) {
@@ -31,22 +31,25 @@ createRoot(document.getElementById('root')!).render(
           {/* Unprotected route: Upon Authentication -> Explore page */}
           <Route path="authentication" element= {<Authentication />}/>
 
-          {/* Messaging page routing */}
-          <Route path="messaging" 
-          element = {
+          {/* Messaging routes */}
+          <Route path="messaging" element={
+            <ProtectedRoute>
+              <Messaging/>
+            </ProtectedRoute>
+          }/>
+          <Route path="messaging/:profileId" element={
             <ProtectedRoute>
               <Messaging/>
             </ProtectedRoute>
           }/>
 
           {/* Profile page routing */}
-          <Route path="profile"
-          element = {
+          <Route path="profile" element={
             <ProtectedRoute>
               <Profile/>
             </ProtectedRoute>
           }/>
-      </Routes>
+        </Routes>
       </AuthProvider>
     </StrictMode>
   </BrowserRouter>
