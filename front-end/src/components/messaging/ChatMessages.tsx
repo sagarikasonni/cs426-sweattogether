@@ -1,126 +1,129 @@
-"use client"
-
-import type React from "react"
-import { useRef, useEffect } from "react"
-import type { Message } from "../../types/messaging"
+import React, { useEffect, useRef } from 'react';
 import type { ProfileModel } from "../../data/ProfileModel"
 
+
+interface Message {
+  senderId: number;
+  text: string;
+  timestamp: Date
+}
+
 interface ChatMessagesProps {
-  activeProfile: ProfileModel | null
-  messages: Message[]
-  newMessage: string
-  onNewMessageChange: (message: string) => void
-  onSendMessage: (e: React.FormEvent) => void
-  currentUserId: number
+  // activeProfile: ProfileModel | null
+  messages: Message[];
+  chatProfile: { name: string; image: string };
+  handleSend: () => void;
+  input: string;
+  setInput: React.Dispatch<React.SetStateAction<string>>;
+  currentUserId: number;
 }
 
-const formatTime = (date: Date) => {
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-}
-
-export function ChatMessages({
-  activeProfile,
+const ChatMessages: React.FC<ChatMessagesProps> = ({
+  // activeProfile,
   messages,
-  newMessage,
-  onNewMessageChange,
-  onSendMessage,
-  currentUserId,
-}: ChatMessagesProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  chatProfile,
+  handleSend,
+  input,
+  setInput,
+  currentUserId
+}) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
-  if (!activeProfile) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Start a conversation</h2>
-          <p className="text-gray-600">
-            Select a conversation from the sidebar or start a new one to connect with workout partners.
-          </p>
-        </div>
-      </div>
-    )
-  }
+  // if (!activeProfile) {
+  //   return (
+  //     <div className="w-full h-full flex items-center justify-center bg-gray-50">
+  //       <div className="text-center max-w-md p-6">
+  //         <h2 className="text-2xl font-bold text-gray-800 mb-2">Start a conversation</h2>
+  //         <p className="text-gray-600">
+  //           Select a conversation from the sidebar or start a new one to connect with workout partners.
+  //         </p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   return (
-
-    
-    
-    <div className="w-full h-full flex flex-col">
-      {/* Chat header */}
-      <div className="border-b px-4 py-3 flex items-center">
-        <img
-          src={activeProfile?.image || '/default-avatar.png'}
-          alt={activeProfile?.name || 'Profile'}
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        <div className="ml-3">
-          <h2 className="font-semibold">{activeProfile?.name || 'Chat'}</h2>
-        </div>
-      </div>
-
-      {/* Messages container */}
-      <div className="flex-1 w-full h-full flex items-center justify-center">
-        {messages.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-gray-500 text-lg">No messages yet. Start the conversation!</p>
-          </div>
+    <div className="w-3/4 p-4 flex flex-col h-full w-full">
+      <h2 className="text-xl font-bold mb-4 flex items-center">
+        {chatProfile ? (
+          <>
+            <img 
+              src={chatProfile.image} 
+              alt={chatProfile.name}
+              className="rounded-full object-cover p-4"
+            />
+            {chatProfile.name}
+          </>
         ) : (
-          <div className="w-full h-full overflow-y-auto p-4">
-            <div className="space-y-4">
-              {messages.map((message, index) => {
-                const isCurrentUser = message.senderId === currentUserId;
-                return (
+          'Select a conversation from the sidebar or start a new one.'
+        )}
+      </h2>
+      <div className="p-4 overflow-y-auto rounded-lg flex flex-col h-full">
+        {messages.length > 0 ? (
+          <div className="space-y-4">
+            {messages.map((msg, index) => {
+              const isCurrentUser = msg.senderId === currentUserId;
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: isCurrentUser ? 'flex-end' : 'flex-start',
+                    marginBottom: '8px'
+                  }}
+                >
                   <div
-                    key={index}
-                    className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                    style={{
+                      borderRadius: '8px',
+                      padding: '8px 16px',
+                      maxWidth: '70%',
+                      backgroundColor: isCurrentUser ? '#3b82f6' : '#f3f4f6',
+                      color: isCurrentUser ? 'white' : '#1f2937'
+                    }}
                   >
-                    <div
-                      className={`rounded-lg px-4 py-2 max-w-[70%] ${
-                        isCurrentUser
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      <p>{message.content}</p>
-                      <span className="text-xs opacity-75 mt-1 block">
-                        {new Date(message.timestamp).toLocaleTimeString([], {
+                    <p>{msg.text}</p>
+                    <span className="text-xs opacity-75 mt-1 block">
+                        {new Date(msg.timestamp).toLocaleTimeString([], {
                           hour: '2-digit',
                           minute: '2-digit'
                         })}
                       </span>
-                    </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
+        ) : (
+          <p className="text-gray-500">No messages yet. Start the conversation!</p>
         )}
+        {/* This div will serve as the scroll-to point */}
+        <div ref={messagesEndRef} />
       </div>
-
-      {/* Message input */}
-      <div className="w-full border-t py-4">
-        <form onSubmit={onSendMessage} className="w-full flex space-x-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => onNewMessageChange(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 w-full h-full flex items-center justify-center"
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none"
-          >
-            Send
-          </button>
-        </form>
+      <div className="mt-4 flex gap-2 flex-shrink-0 bottom-0">
+        <input
+          type="text"
+          className="border p-2 flex-1 rounded-lg w-full"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type a message..."
+        />
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none"
+          onClick={handleSend}
+        >
+          Send
+        </button>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default ChatMessages;
 

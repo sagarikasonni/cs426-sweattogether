@@ -3,7 +3,7 @@ import { ProfileModel } from "../data/ProfileModel";
 const profileData: ProfileModel[] = [
     {
         id: 1,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Alice",
         age: 30,
         gender: "Female",
@@ -19,7 +19,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 2,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "John",
         age: 22,
         gender: "Male",
@@ -35,7 +35,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 3,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Bob",
         age: 32,
         gender: "Male",
@@ -51,7 +51,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 4,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Jane",
         age: 26,
         gender: "Female",
@@ -67,7 +67,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 5,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Michael",
         age: 30,
         gender: "Male",
@@ -83,7 +83,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 6,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Julie",
         age: 20,
         gender: "Female",
@@ -99,7 +99,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 7,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Maria",
         age: 27,
         gender: "Female",
@@ -115,7 +115,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 8,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Felix",
         age: 30,
         gender: "Nonbinary",
@@ -131,7 +131,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 9,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Isabella",
         age: 28,
         gender: "Female",
@@ -147,7 +147,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 10,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "George",
         age: 32,
         gender: "Male",
@@ -163,7 +163,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 11,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Jordan",
         age: 23,
         gender: "Nonbinary",
@@ -179,7 +179,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 12,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Riley",
         age: 20,
         gender: "Nonbinary",
@@ -195,7 +195,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 13,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Aparna",
         age: 24,
         gender: "Female",
@@ -209,7 +209,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 14,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "Alice",
         age: 30,
         gender: "Female",
@@ -224,7 +224,7 @@ const profileData: ProfileModel[] = [
     },
     {
         id: 15,
-        image: "https://placehold.co/150x150",
+        image: "https://placehold.co/100x100",
         name: "David",
         age: 30,
         gender: "Male",
