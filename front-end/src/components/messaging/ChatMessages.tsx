@@ -1,11 +1,15 @@
 import React, { useEffect, useRef } from 'react';
+import type { ProfileModel } from "../../data/ProfileModel"
+
 
 interface Message {
   senderId: number;
   text: string;
+  timestamp: Date
 }
 
 interface ChatMessagesProps {
+  // activeProfile: ProfileModel | null
   messages: Message[];
   chatProfile: { name: string; image: string };
   handleSend: () => void;
@@ -15,6 +19,7 @@ interface ChatMessagesProps {
 }
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({
+  // activeProfile,
   messages,
   chatProfile,
   handleSend,
@@ -29,6 +34,19 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+  // if (!activeProfile) {
+  //   return (
+  //     <div className="w-full h-full flex items-center justify-center bg-gray-50">
+  //       <div className="text-center max-w-md p-6">
+  //         <h2 className="text-2xl font-bold text-gray-800 mb-2">Start a conversation</h2>
+  //         <p className="text-gray-600">
+  //           Select a conversation from the sidebar or start a new one to connect with workout partners.
+  //         </p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="w-3/4 p-4 flex flex-col h-full w-full">
@@ -54,16 +72,29 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               return (
                 <div
                   key={index}
-                  className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                  style={{
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: isCurrentUser ? 'flex-end' : 'flex-start',
+                    marginBottom: '8px'
+                  }}
                 >
                   <div
-                    className={`rounded-lg px-4 py-2 max-w-[70%] ${
-                      isCurrentUser
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
+                    style={{
+                      borderRadius: '8px',
+                      padding: '8px 16px',
+                      maxWidth: '70%',
+                      backgroundColor: isCurrentUser ? '#3b82f6' : '#f3f4f6',
+                      color: isCurrentUser ? 'white' : '#1f2937'
+                    }}
                   >
                     <p>{msg.text}</p>
+                    <span className="text-xs opacity-75 mt-1 block">
+                        {new Date(msg.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
                   </div>
                 </div>
               );
@@ -95,3 +126,4 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
 };
 
 export default ChatMessages;
+

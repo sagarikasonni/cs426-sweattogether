@@ -1,60 +1,94 @@
-import { useState } from 'react';
-import NavBar from '../components/NavBar';
-import profileData from '../mockData/MockProfiles';
-import mockChats from '../mockData/MockChats';
-import { ChatSidebar } from '../components/messaging/ChatSidebar';
-import ChatMessages from '../components/messaging/ChatMessages';
+"use client"
 
-const currentUserId = 0;
-const chatIds = [1, 2, 3, 6];
+import { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import NavBar from "../components/NavBar"
+import profileData from "../mockData/MockProfiles"
+import mockChats from "../mockData/MockChats"
+import { ChatSidebar } from "../components/messaging/ChatSidebar"
+import ChatMessages from "../components/messaging/ChatMessages"
 
-const chats = chatIds.reduce((acc, id) => {
-  acc[id] = {
-    id,
-    profile: profileData.find((profile) => profile.id === id) || { name: 'Unknown', image: 'https://placehold.co/200x200' },
-  };
-  return acc;
-}, {} as { [key: number]: { id: number, profile: { name: string, image: string } } });
+const currentUserId = 0
 
 function Messaging() {
-  const [selectedChat, setSelectedChat] = useState<number>(1);
-  const [messages, setMessages] = useState(mockChats[1]);
-  const [input, setInput] = useState('');
+  const { profileId } = useParams<{ profileId: string }>()
+  const navigate = useNavigate()
+
+  // Create a mapping of all profiles for chat
+  const allChats = profileData.reduce(
+    (acc, profile) => {
+      acc[profile.id] = {
+        id: profile.id,
+        profile: {
+          name: profile.name,
+          image: profile.image,
+        },
+      }
+      return acc
+    },
+    {} as { [key: number]: { id: number; profile: { name: string; image: string } } },
+  )
+
+  // const [activeConversationId, setActiveConversationId] = useState<number | null>(
+  //   profileId ? Number(profileId) : null
+  // );
+
+  
+  // Initialize with the profileId from URL or the first profile
+  const initialChatId = profileId
+    ? Number.parseInt(profileId)
+    : Object.keys(allChats)[0]
+      ? Number.parseInt(Object.keys(allChats)[0])
+      : 1
+
+  const [selectedChat, setSelectedChat] = useState<number>(initialChatId)
+  const [messages, setMessages] = useState<{ senderId: number; text: string; timestamp: Date}[]>([])
+  const [input, setInput] = useState("")
+
+  // Update URL when selected chat changes
+  useEffect(() => {
+    navigate(`/messaging/${selectedChat}`)
+  }, [selectedChat, navigate])
+
+  // Load messages when selected chat changes
+  useEffect(() => {
+    // Check if chat exists in mockChats, otherwise set messages to an empty array
+    const chatMessages = mockChats[selectedChat] || []
+    setMessages(chatMessages)
+  }, [selectedChat])
 
   const handleSend = () => {
     if (input.trim() && selectedChat !== undefined) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { senderId: currentUserId, text: input },
-      ]);
-      setInput('');
+      const newMessage = { senderId: currentUserId, text: input, timestamp: new Date() }
+      setMessages((prevMessages) => [...prevMessages, newMessage])
+
+      // Update mockChats to persist the message
+      if (!mockChats[selectedChat]) {
+        mockChats[selectedChat] = []
+      }
+      mockChats[selectedChat].push(newMessage)
+
+      setInput("")
     }
-  };
+  }
 
   const handleChatSelect = (id: number) => {
-    setSelectedChat(id);
-  
-    // Check if chat exists in mockChats, otherwise set messages to an empty array
-    const chatMessages = mockChats[id] || [];
-    
-    setMessages(chatMessages);
-  };
+    setSelectedChat(id)
+  }
+
+  // const activeProfile = profileData.find(p => p.id === activeConversationId);
 
   return (
     <>
       <NavBar />
       <div className="flex h-screen">
         {/* ChatSidebar Component */}
-        <ChatSidebar
-          chats={Object.values(chats)}
-          selectedChat={selectedChat}
-          handleChatSelect={handleChatSelect}
-        />
-
+        <ChatSidebar chats={Object.values(allChats)} selectedChat={selectedChat} handleChatSelect={handleChatSelect} />
         {/* ChatMessages Component */}
         <ChatMessages
+          // activeProfile={activeProfile || null}
           messages={messages}
-          chatProfile={chats[selectedChat]?.profile}
+          chatProfile={allChats[selectedChat]?.profile}
           handleSend={handleSend}
           input={input}
           setInput={setInput}
@@ -62,7 +96,8 @@ function Messaging() {
         />
       </div>
     </>
-  );
+  )
 }
 
-export default Messaging;
+export default Messaging
+

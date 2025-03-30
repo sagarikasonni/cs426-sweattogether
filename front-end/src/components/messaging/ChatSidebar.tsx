@@ -1,18 +1,20 @@
-import { useState } from 'react';
-import mockChats from '../../mockData/MockChats';
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import mockChats from "../../mockData/MockChats"
 
 interface ChatSidebarProps {
-  chats: { id: number; profile: { name: string; image: string } }[];
-  selectedChat: number;
-  handleChatSelect: (id: number) => void;
+  chats: { id: number; profile: { name: string; image: string } }[]
+  selectedChat: number
+  handleChatSelect: (id: number) => void
 }
 
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, handleChatSelect }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("")
 
-  const filteredChats = chats.filter((chat) =>
-    chat.profile.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredChats = chats.filter((chat) => chat.profile.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
     <div className="w-1/4 min-h-screen bg-gray-200 p-4">
@@ -34,40 +36,42 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, h
       <div className="flex-1 overflow-y-auto">
         {filteredChats.length > 0 ? (
           filteredChats.map((chat) => {
-            const isActive = selectedChat === chat.id;
+            const isActive = selectedChat === chat.id
+            const hasMessages = mockChats[chat.id] && mockChats[chat.id].length > 0
+            const lastMessage = hasMessages
+              ? mockChats[chat.id][mockChats[chat.id].length - 1].text
+              : "No messages yet."
+
             return (
               <div
                 key={chat.id}
                 className={`flex items-center px-4 py-2 cursor-pointer border-l-4 ${
-                  isActive ? 'bg-blue-50 border-blue-500' : 'hover:bg-gray-50 border-transparent'
+                  isActive ? "bg-blue-50 border-blue-500" : "hover:bg-gray-50 border-transparent"
                 }`}
                 onClick={() => handleChatSelect(chat.id)}
               >
-                <div className="relative flex-shrink-0">
-                <img
+                <div className="w-12 h-12 rounded-full overflow-hidden">
+                  <img
                     src={chat.profile.image}
                     alt={chat.profile.name}
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-12 h-12 rounded-full object-cover"
                   />
                 </div>
-
                 {/* Content */}
                 <div className="ml-3 flex-1 min-w-0">
                   <div className="flex justify-between items-baseline">
-                    <h3
-                      className={`text-sm font-semibold truncate ${isActive ? 'text-blue-600' : 'text-gray-900'}`}
-                    >
+                    <h3 className={`text-sm font-semibold truncate ${isActive ? "text-blue-600" : "text-gray-900"}`}>
                       {chat.profile.name}
                     </h3>
                   </div>
                   <div className="flex items-center">
-                    <p className={`text-sm truncate ${isActive ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
-                      {mockChats[chat.id]?.[0]?.text || 'No messages yet.'}
+                    <p className={`text-sm truncate ${isActive ? "font-medium text-gray-900" : "text-gray-500"}`}>
+                      {lastMessage}
                     </p>
                   </div>
                 </div>
               </div>
-            );
+            )
           })
         ) : (
           <div className="p-4 text-center text-gray-500">
@@ -76,5 +80,6 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, h
         )}
       </div>
     </div>
-  );
-};
+  )
+}
+

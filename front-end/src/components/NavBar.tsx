@@ -9,7 +9,7 @@ function NavBar() {
     ];
 
     return (
-        <nav className="bg-gray-800 p-4 shadow-md flex flex-col md:flex-row justify-between items-center">
+        <nav className="bg-cyan-500 p-4 shadow-md flex flex-col md:flex-row justify-between items-center">
             <NavLink to="/" className="text-white text-lg font-bold hover:text-gray-200">
                 SweatTogether
             </NavLink>
