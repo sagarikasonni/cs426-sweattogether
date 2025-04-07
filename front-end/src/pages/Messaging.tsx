@@ -58,8 +58,8 @@ function Messaging() {
       .filter((id) => mockChats[id] && mockChats[id].length > 0)
       .sort((a, b) => {
         // Sort by most recent message
-        const aLastMsg = mockChats[a][mockChats[a].length - 1]
-        const bLastMsg = mockChats[b][mockChats[b].length - 1]
+        // const aLastMsg = mockChats[a][mockChats[a].length - 1]
+        // const bLastMsg = mockChats[b][mockChats[b].length - 1]
         // If we had timestamps, we'd use them here
         // For now, just assume the order in the array
         return b - a
@@ -119,7 +119,7 @@ function Messaging() {
   return (
     <>
       <NavBar />
-      <div className="flex h-screen">
+      <div className="flex">
         {/* ChatSidebar Component */}
         <ChatSidebar chats={activeChats} selectedChat={selectedChat} handleChatSelect={handleChatSelect} />
         {/* ChatMessages Component */}
