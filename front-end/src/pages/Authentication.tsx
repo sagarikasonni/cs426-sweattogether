@@ -1,16 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { MockUsers } from "../mockData/MockUsers";
 import logo from "../assets/logo.png"
 
 function Authentication() {
-    const { setIsAuth } = useAuth()
+    const { isAuth, setIsAuth } = useAuth()
     const [isLogin, setIsLogin] = useState(true)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
     const navigate = useNavigate()
+
+    useEffect(() => {
+        if (isAuth) {
+            navigate("/")
+        }
+    }, [isAuth, navigate])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
