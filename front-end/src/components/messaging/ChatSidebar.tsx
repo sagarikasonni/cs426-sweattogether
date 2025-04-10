@@ -17,7 +17,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, h
   const filteredChats = chats.filter((chat) => chat.profile.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
-    <div className="w-1/4 min-h-screen bg-gray-200 p-4">
+    <div className="static min-h-screen bg-gray-200 p-4">
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <h1 className="text-2xl font-semibold text-gray-800 mb-4 text-center">Messages</h1>
@@ -39,8 +39,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, h
             const isActive = selectedChat === chat.id
             const hasMessages = mockChats[chat.id] && mockChats[chat.id].length > 0
             const lastMessage = hasMessages
-              ? mockChats[chat.id][mockChats[chat.id].length - 1].text
-              : "No messages yet."
+            ? mockChats[chat.id][mockChats[chat.id].length - 1].text.length > 15
+              ? mockChats[chat.id][mockChats[chat.id].length - 1].text.substring(0, 15) + "..."
+              : mockChats[chat.id][mockChats[chat.id].length - 1].text
+            : "No messages yet."
 
             return (
               <div
