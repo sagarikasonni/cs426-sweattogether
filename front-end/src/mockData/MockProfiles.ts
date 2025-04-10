@@ -118,7 +118,7 @@ const profileData: ProfileModel[] = [
         image: "https://placehold.co/100x100",
         name: "Felix",
         age: 30,
-        gender: "Nonbinary",
+        gender: "Other",
         location: {
             city: "Dortmund",
             state: "North Rhine-Westphalia",
@@ -166,7 +166,7 @@ const profileData: ProfileModel[] = [
         image: "https://placehold.co/100x100",
         name: "Jordan",
         age: 23,
-        gender: "Nonbinary",
+        gender: "Other",
         location: {
             city: "Paris",
             state: "Paris",
@@ -182,7 +182,7 @@ const profileData: ProfileModel[] = [
         image: "https://placehold.co/100x100",
         name: "Riley",
         age: 20,
-        gender: "Nonbinary",
+        gender: "Other",
         location: {
             city: "Paris",
             state: "Texas",
