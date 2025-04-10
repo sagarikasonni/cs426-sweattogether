@@ -9,12 +9,20 @@ import { ProfileModel } from '../data/ProfileModel.ts';
 function Explore() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [profiles, setProfiles] = useState<ProfileModel[]>(profileData);
-  const [sortOption, setSortOption] = useState<SortOption>('name-az');
-  const [filters, setFilters] = useState<any>({
-    levels: [],
-    genders: [],
-    maxDistance: null,
-    workoutTypes: [],
+  const [sortOption, setSortOption] = useState<SortOption>(() =>{
+    return (localStorage.getItem('sortOption') as SortOption) || 'name-az';
+  });
+  const [loading, setLoading] = useState(true);
+  
+  const [filters, setFilters] = useState<any>(() => {
+    const saved = localStorage.getItem('filters');
+    return saved ? JSON.parse(saved)
+      : {
+          levels: [],
+          genders: [],
+          maxDistance: null,
+          workoutTypes: [],
+        };
   });
 
   const toggleFilter = () => {
@@ -40,9 +48,18 @@ function Explore() {
     const fetchProfiles = async () => {
       const sortedProfiles = await getFilteredAndSortedProfiles();
       setProfiles(() => sortedProfiles);
+      setLoading(false);
     };
     fetchProfiles();
   }, [filters, sortOption]);
+
+  useEffect(() => {
+    localStorage.setItem('filters', JSON.stringify(filters));
+  }, [filters]);
+  
+  useEffect(() => {
+    localStorage.setItem('sortOption', sortOption);
+  }, [sortOption]);
 
   return (
     <>
@@ -55,7 +72,7 @@ function Explore() {
       </button>
 
       <div className="flex">
-        <FilterBar isFilterOpen={isFilterOpen} onFilterChange={handleFilterChange} />
+        <FilterBar isFilterOpen={isFilterOpen} filters={filters} onFilterChange={handleFilterChange} />
         <div className='w-full'>
           <div className={`p-4 flex ${isFilterOpen ? 'hidden' : ''} md:block justify-start`}>
             <label htmlFor="sort" className="mr-2">Sort by:</label>
@@ -75,7 +92,7 @@ function Explore() {
             className="flex flex-wrap gap-8 p-4 justify-center transition-transform duration-300 max-w-full overflow-x-auto"
             onClick={() => isFilterOpen && toggleFilter()}
           >
-            {profiles.length > 0 ? (
+            {loading ? (<p></p>) : profiles.length > 0 ? (
               profiles.map((profile) => (
                 <ProfileCard
                   key={profile.id}

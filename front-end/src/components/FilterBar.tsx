@@ -1,45 +1,37 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import Workouts from '../consts/Workouts.ts';
 
 interface FilterBarProps {
     isFilterOpen: boolean;
+    filters: any;
     onFilterChange: (filters: any) => void;
 }
 
-const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) => {
-    const [levels, setLevels] = useState<string[]>([]);
-    const [genders, setGenders] = useState<string[]>([]);
-    const [maxDistance, setMaxDistance] = useState<number | null>(null);
-    const [workoutTypes, setWorkoutTypes] = useState<string[]>([]);
-
+const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, filters, onFilterChange }) => {
     // on filter bar changes, run passed in function
     const handleLevelChange = (level: string) => {
-        const newLevels = levels.includes(level)
-            ? levels.filter(l => l !== level)
-            : [...levels, level];
-        setLevels(() => newLevels);
-        onFilterChange({ levels: newLevels, genders, maxDistance, workoutTypes });
+        const newLevels = filters.levels.includes(level)
+            ? filters.levels.filter((l: string) => l !== level)
+            : [...filters.levels, level];
+        onFilterChange({ ...filters, levels: newLevels });
     };
 
     const handleGenderChange = (gender: string) => {
-        const newGenders = genders.includes(gender)
-            ? genders.filter(g => g !== gender)
-            : [...genders, gender];
-        setGenders(() => newGenders);
-        onFilterChange({ levels, genders: newGenders, maxDistance, workoutTypes });
+        const newGenders = filters.genders.includes(gender)
+            ? filters.genders.filter((g: string) => g !== gender)
+            : [...filters.genders, gender];
+        onFilterChange({ ...filters, genders: newGenders });
     };
 
     const handleDistanceChange = (distance: number) => {
-        setMaxDistance(() => distance);
-        onFilterChange({ levels, genders, maxDistance: distance, workoutTypes });
+        onFilterChange({ ...filters, maxDistance: distance });
     };
 
     const handleWorkoutTypeChange = (type: string) => {
-        const newWorkoutTypes = workoutTypes.includes(type)
-            ? workoutTypes.filter(t => t !== type)
-            : [...workoutTypes, type];
-        setWorkoutTypes(() => newWorkoutTypes);
-        onFilterChange({ levels, genders, maxDistance, workoutTypes: newWorkoutTypes });
+        const newWorkoutTypes = filters.workoutTypes.includes(type)
+            ? filters.workoutTypes.filter((t: string) => t !== type)
+            : [...filters.workoutTypes, type];
+        onFilterChange({ ...filters, workoutTypes: newWorkoutTypes });
     };
 
     return (
@@ -54,7 +46,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) =
                             <label key={level} className="flex items-center">
                                 <input
                                     type="checkbox"
-                                    checked={levels.includes(level)}
+                                    checked={filters.levels.includes(level)}
                                     onChange={() => handleLevelChange(level)}
                                     className="mr-2"
                                 />
@@ -72,7 +64,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) =
                             <label key={gender} className="flex items-center">
                                 <input
                                     type="checkbox"
-                                    checked={genders.includes(gender)}
+                                    checked={filters.genders.includes(gender)}
                                     onChange={() => handleGenderChange(gender)}
                                     className="mr-2"
                                 />
@@ -87,7 +79,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) =
                     <label className="block text-sm font-medium text-gray-700">Max Distance (km)</label>
                     <input
                         type="number"
-                        value={maxDistance || ''}
+                        value={filters.maxDistance || ''}
                         onChange={(e) => handleDistanceChange(Number(e.target.value))}
                         className="w-full p-2 border border-gray-300 rounded"
                         placeholder="Enter distance"
@@ -102,7 +94,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, onFilterChange }) =
                             <label key={type} className="flex items-center">
                                 <input
                                     type="checkbox"
-                                    checked={workoutTypes.includes(type)}
+                                    checked={filters.workoutTypes.includes(type)}
                                     onChange={() => handleWorkoutTypeChange(type)}
                                     className="mr-2"
                                 />
