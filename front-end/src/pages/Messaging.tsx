@@ -92,7 +92,9 @@ function Messaging() {
       if (!mockChats[selectedChat]) {
         mockChats[selectedChat] = []
       }
-      mockChats[selectedChat].push(newMessage)
+      const updatedMessages = [...mockChats[selectedChat], newMessage]
+      mockChats[selectedChat] = updatedMessages
+      setMessages(updatedMessages)
 
       // If this is a new chat, add it to the active chats at the top
       if (!activeChatIds.includes(selectedChat)) {
