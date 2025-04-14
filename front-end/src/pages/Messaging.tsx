@@ -123,7 +123,7 @@ function Messaging() {
       <NavBar />
       <div className="flex">
         {/* ChatSidebar Component */}
-        <ChatSidebar chats={activeChats} selectedChat={selectedChat} handleChatSelect={handleChatSelect} />
+        <ChatSidebar chats={activeChats} selectedChat={selectedChat} handleChatSelect={handleChatSelect} currentUserId={currentUserId}/>
         {/* ChatMessages Component */}
         <ChatMessages
           // activeProfile={activeProfile || null}
