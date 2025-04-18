@@ -6,18 +6,19 @@ import { useState } from "react"
 import mockChats from "../../mockData/MockChats"
 
 interface ChatSidebarProps {
-  chats: { id: number; profile: { name: string; image: string } }[]
-  selectedChat: number
-  handleChatSelect: (id: number) => void
+  chats: { id: number; profile: { name: string; image: string } }[];
+  selectedChat: number;
+  handleChatSelect: (id: number) => void;
+  currentUserId: number;   
 }
 
-export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, handleChatSelect }) => {
+export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, handleChatSelect, currentUserId }) => {
   const [searchQuery, setSearchQuery] = useState("")
 
   const filteredChats = chats.filter((chat) => chat.profile.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
-    <div className="w-1/4 min-h-screen bg-gray-200 p-4">
+    <div className="static min-h-screen bg-gray-200 p-4">
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <h1 className="text-2xl font-semibold text-gray-800 mb-4 text-center">Messages</h1>
@@ -38,9 +39,25 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, h
           filteredChats.map((chat) => {
             const isActive = selectedChat === chat.id
             const hasMessages = mockChats[chat.id] && mockChats[chat.id].length > 0
-            const lastMessage = hasMessages
-              ? mockChats[chat.id][mockChats[chat.id].length - 1].text
-              : "No messages yet."
+            const lastMsgObj = hasMessages ? mockChats[chat.id][mockChats[chat.id].length - 1] : null;
+  
+            // Determine sender display text
+            const senderDisplay = lastMsgObj 
+              ? (lastMsgObj.senderId === currentUserId ? "You" : chat.profile.name)
+              : "";
+          
+            // Truncate the text: We originally limit to 15 characters,
+            // but you can adjust the substring logic if needed.
+            const truncatedText = lastMsgObj 
+              ? (lastMsgObj.text.length > 10 
+                   ? lastMsgObj.text.substring(0, 10) + "..." 
+                   : lastMsgObj.text)
+              : "No messages yet.";
+          
+            // Combine sender and message preview
+            const lastMessage = lastMsgObj 
+              ? `${senderDisplay}: ${truncatedText}`
+              : "No messages yet.";          
 
             return (
               <div
@@ -50,26 +67,31 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, h
                 }`}
                 onClick={() => handleChatSelect(chat.id)}
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden">
                   <img
                     src={chat.profile.image}
                     alt={chat.profile.name}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 </div>
-                {/* Content */}
-                <div className="ml-3 flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline">
-                    <h3 className={`text-sm font-semibold truncate ${isActive ? "text-blue-600" : "text-gray-900"}`}>
+                  <div className="ml-3 flex-1">
+                    <h3 className="text-sm font-semibold truncate 
+                      ${isActive ? 'text-blue-600' : 'text-gray-900'}">
                       {chat.profile.name}
                     </h3>
+                    <div className="mt-1" style={{ maxWidth: "75px" }}>
+                      <p
+                        className="text-sm overflow-hidden"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
+                        {lastMessage}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <p className={`text-sm truncate ${isActive ? "font-medium text-gray-900" : "text-gray-500"}`}>
-                      {lastMessage}
-                    </p>
-                  </div>
-                </div>
               </div>
             )
           })

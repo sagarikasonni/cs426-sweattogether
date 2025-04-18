@@ -35,19 +35,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
     }
   }, [messages]);
 
-  // if (!activeProfile) {
-  //   return (
-  //     <div className="w-full h-full flex items-center justify-center bg-gray-50">
-  //       <div className="text-center max-w-md p-6">
-  //         <h2 className="text-2xl font-bold text-gray-800 mb-2">Start a conversation</h2>
-  //         <p className="text-gray-600">
-  //           Select a conversation from the sidebar or start a new one to connect with workout partners.
-  //         </p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
-
   return (
     <div className="w-3/4 p-4 flex flex-col h-full w-full">
       <h2 className="text-xl font-bold mb-4 flex items-center">
