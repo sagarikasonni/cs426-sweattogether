@@ -146,7 +146,7 @@ function Profile() {
               </div>
               {/* Gender */}
               <div className="mb-4">
-                <label className="text-xl font-medium text-gray-700">Workout Preferences: </label>
+                <label className="text-xl font-medium text-gray-700">Gender: </label>
                 <div className="grid gap-2">
                   {genders.map(g => (
                     <label key={g} className="flex items-center space-x-2">
