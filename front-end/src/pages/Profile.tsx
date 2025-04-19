@@ -8,26 +8,43 @@ import CountryModel from '../data/CountryModel.ts'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
 
-function Profile() {
-    const [profile, setProfile] = useState<ProfileModel>({
-        id: 1, 
-        image: '',
-        name: '',
-        age: 0,
-        gender: '',
-        location: {
-            city: '',
-            state: '',
-            country: Countries[0] as CountryModel,
-            zip_code: ''
-        },
-        level: Levels[0] as LevelModel,
-        workout_preferences: [],
-        bio: ''
-    })
+// Function to get initial profile
+const getInitialProfile = (): ProfileModel => {
+  let savedProfile = localStorage.getItem("userProfile")
+  // if profile exists
+  if (savedProfile) {
+    let parsed = JSON.parse(savedProfile)
+    return {
+      ...parsed,
+      level: parsed.level || Levels[0],
+      location: {
+        ...parsed.location, 
+        country: parsed.location.country || Countries[0]
+      }
+    }
+  }
 
+  return {
+    id: 1, 
+    image: '',
+    name: '',
+    age: 0,
+    gender: '',
+    location: {
+      city: '',
+      state: '',
+      country: Countries[0] as CountryModel,
+      zip_code: ''
+    },
+    level: Levels[0] as LevelModel,
+    workout_preferences: [],
+    bio: ''
+  }
+}
+
+function Profile() {
+    const [profile, setProfile] = useState<ProfileModel>(getInitialProfile)
     const genders = ['Male', 'Female', 'Other'] as const
-    // TODO: Add pronouns as a dropdown
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -76,6 +93,11 @@ function Profile() {
         }
     }
 
+    const handleReset = () => {
+      localStorage.removeItem("userProfile")
+      window.location.reload()
+    }
+
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault()
       
@@ -114,8 +136,8 @@ function Profile() {
         return
       }
 
-      setProfile(profile)
-      
+      // setProfile(profile)
+      localStorage.setItem("userProfile", JSON.stringify(profile))
       alert("Profile saved successfully!")
     }
 
@@ -206,8 +228,13 @@ function Profile() {
               <label className="text-xl font-medium text-gray-700">Bio</label>
                 <textarea name="bio" value={profile.bio} onChange={handleInputChange} className="border rounded w-full p-2 resize-none" rows={3}></textarea>
               </div>
-              {/* Submit  Button*/}
-              <button onClick={handleSubmit} className="w-20 bg-gray-500 text-white p-2 rounded mt-auto">Submit</button>
+              {/* Buttons Row */}
+              <div className='flex gap-4 mt-4'>
+                {/* Submit  Button*/}
+                <button onClick={handleSubmit} className="w-20 bg-gray-500 text-white p-2 rounded mt-auto">Submit</button>
+                {/* Reset Button */}
+                <button onClick={handleReset} className="w-40 bg-gray-500 text-white p-2 rounded mt-auto">Reset Profile</button>
+              </div>
             </div>
           </form>
         </div>
