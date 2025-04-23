@@ -31,7 +31,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      // messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
@@ -99,6 +99,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
           className="border p-2 flex-1 rounded-lg w-full"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSend();
+            }
+          }}
           placeholder="Type a message..."
         />
         <button
