@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import NavBar from '../components/NavBar.tsx'
 import { ProfileModel, WorkoutModel, LevelModel } from '../data/ProfileModel.ts'
 import Workouts from '../consts/Workouts.ts'
@@ -9,42 +9,85 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
 
 // Function to get initial profile
-const getInitialProfile = (): ProfileModel => {
-  let savedProfile = localStorage.getItem("userProfile")
-  // if profile exists
-  if (savedProfile) {
-    let parsed = JSON.parse(savedProfile)
-    return {
-      ...parsed,
-      level: parsed.level || Levels[0],
-      location: {
-        ...parsed.location, 
-        country: parsed.location.country || Countries[0]
-      }
-    }
-  }
+// const getInitialProfile = (): ProfileModel => {
+//   let savedProfile = localStorage.getItem("userProfile")
+//   // if profile exists
+//   if (savedProfile) {
+//     let parsed = JSON.parse(savedProfile)
+//     return {
+//       ...parsed,
+//       level: parsed.level || Levels[0],
+//       location: {
+//         ...parsed.location, 
+//         country: parsed.location.country || Countries[0]
+//       }
+//     }
+//   }
 
-  return {
-    id: 1, 
-    image: '',
-    name: '',
-    age: 0,
-    gender: '',
-    location: {
-      city: '',
-      state: '',
-      country: Countries[0] as CountryModel,
-      zip_code: ''
-    },
-    level: Levels[0] as LevelModel,
-    workout_preferences: [],
-    bio: ''
-  }
+//   return {
+//     id: 1, 
+//     image: '',
+//     name: '',
+//     age: 0,
+//     gender: '',
+//     location: {
+//       city: '',
+//       state: '',
+//       country: Countries[0] as CountryModel,
+//       zip_code: ''
+//     },
+//     level: Levels[0] as LevelModel,
+//     workout_preferences: [],
+//     bio: ''
+//   }
+// }
+
+const emptyProfile: ProfileModel = {
+  id: 1,
+  image: '',
+  name: '',
+  age: 0,
+  gender: '',
+  location: {
+    city: '',
+    state: '',
+    country: Countries[0] as CountryModel,
+    zip_code: ''
+  },
+  level: Levels[0] as LevelModel,
+  workout_preferences: [],
+  bio: ''
 }
 
 function Profile() {
-    const [profile, setProfile] = useState<ProfileModel>(getInitialProfile)
+    // const [profile, setProfile] = useState<ProfileModel>(getInitialProfile)
+    const [profile, setProfile] = useState<ProfileModel>(emptyProfile)
     const genders = ['Male', 'Female', 'Other'] as const
+
+    useEffect(() => {
+      const fetchProfile = async () => {
+        try {
+          const res = await fetch('/api/profiles')
+          if (res.ok) {
+            const data = await res.json()
+            setProfile(data)
+            localStorage.setItem("userProfile", JSON.stringify(data))
+          }
+        }
+        catch (err) {
+          console.error('Error fetching profile: ', err)
+        }
+      }
+
+      const savedProfile = localStorage.getItem("userProfile")
+      if (savedProfile) {
+        const parsed = JSON.parse(savedProfile)
+        setProfile(parsed)
+      }
+      else {
+        fetchProfile()
+      }
+    }, [])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -95,10 +138,10 @@ function Profile() {
 
     const handleReset = () => {
       localStorage.removeItem("userProfile")
-      window.location.reload()
+      setProfile(emptyProfile)
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault()
       
       if (!profile.name) {
@@ -136,9 +179,26 @@ function Profile() {
         return
       }
 
-      // setProfile(profile)
-      localStorage.setItem("userProfile", JSON.stringify(profile))
-      alert("Profile saved successfully!")
+      try {
+        const res = await fetch('http://localhost:4000/api/profiles', {
+          method: 'POST',
+          headers: { 'Content-type':'application/json' },
+          body: JSON.stringify(profile)
+        })
+
+        if (res.ok) {
+          const savedProfile = await res.json()
+          console.log('Profile saved: ', savedProfile)
+          alert('Profile saved successfully')
+        }
+        else {
+          alert('Failed to save profile, please try again!')
+        }
+      }
+      catch (err) {
+        console.error('Error: ', err)
+        alert('Error connecting to server')
+      }
     }
 
     return (
