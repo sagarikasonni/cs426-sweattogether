@@ -67,6 +67,7 @@ function Profile() {
     useEffect(() => {
       const fetchProfile = async () => {
         try {
+          // TODO: Implement fetch profile logic 
           const res = await fetch('/api/profiles')
           if (res.ok) {
             const data = await res.json()
