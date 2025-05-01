@@ -8,40 +8,6 @@ import CountryModel from '../data/CountryModel.ts'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
 
-// Function to get initial profile
-// const getInitialProfile = (): ProfileModel => {
-//   let savedProfile = localStorage.getItem("userProfile")
-//   // if profile exists
-//   if (savedProfile) {
-//     let parsed = JSON.parse(savedProfile)
-//     return {
-//       ...parsed,
-//       level: parsed.level || Levels[0],
-//       location: {
-//         ...parsed.location, 
-//         country: parsed.location.country || Countries[0]
-//       }
-//     }
-//   }
-
-//   return {
-//     id: 1, 
-//     image: '',
-//     name: '',
-//     age: 0,
-//     gender: '',
-//     location: {
-//       city: '',
-//       state: '',
-//       country: Countries[0] as CountryModel,
-//       zip_code: ''
-//     },
-//     level: Levels[0] as LevelModel,
-//     workout_preferences: [],
-//     bio: ''
-//   }
-// }
-
 const emptyProfile: ProfileModel = {
   id: 1,
   image: '',
@@ -60,7 +26,6 @@ const emptyProfile: ProfileModel = {
 }
 
 function Profile() {
-    // const [profile, setProfile] = useState<ProfileModel>(getInitialProfile)
     const [profile, setProfile] = useState<ProfileModel>(emptyProfile)
     const genders = ['Male', 'Female', 'Other'] as const
 
@@ -68,11 +33,14 @@ function Profile() {
       const fetchProfile = async () => {
         try {
           // TODO: Implement fetch profile logic 
-          const res = await fetch('/api/profiles')
+          const res = await fetch('http://localhost:4000/api/profiles')
           if (res.ok) {
             const data = await res.json()
             setProfile(data)
             localStorage.setItem("userProfile", JSON.stringify(data))
+          }
+          else {
+            console.warn('No profile found')
           }
         }
         catch (err) {
@@ -80,14 +48,13 @@ function Profile() {
         }
       }
 
-      const savedProfile = localStorage.getItem("userProfile")
-      if (savedProfile) {
-        const parsed = JSON.parse(savedProfile)
+      const cached = localStorage.getItem('userProfile')
+      if (cached) {
+        const parsed = JSON.parse(cached)
         setProfile(parsed)
       }
-      else {
-        fetchProfile()
-      }
+
+      fetchProfile()
     }, [])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -118,7 +85,6 @@ function Profile() {
         })
     }
 
-    // currently set to only select one checkbox
     const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value, checked } = e.target
       if (checked) {
@@ -189,7 +155,9 @@ function Profile() {
 
         if (res.ok) {
           const savedProfile = await res.json()
-          console.log('Profile saved: ', savedProfile)
+          setProfile(savedProfile)
+          localStorage.setItem("userProfile", JSON.stringify(savedProfile))
+          // console.log('Profile saved: ', savedProfile)
           alert('Profile saved successfully')
         }
         else {

@@ -1,16 +1,19 @@
 import { Request, Response } from "express";
 import UserProfile from "../models/UserProfile";
 
-// function to create a new profile
+// finds and updates one
+// TODO: find a way to associate a profile with a user email
 export const createProfile = async (req: Request, res: Response): Promise<any> => {
     try {
-        const newProfile = new UserProfile(req.body)
-        const savedProfile = await newProfile.save()
-        res.status(201).json(savedProfile)
-    }
-    catch (error) {
-        console.error('Error saving profile', error)
-        res.status(500).json({ error: 'Failed to save profile' })
+      const updatedProfile = await UserProfile.findOneAndUpdate(
+        {},             
+        req.body,       
+        { new: true, upsert: true }  
+      )
+      res.status(200).json(updatedProfile)
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      res.status(500).json({ error: 'Failed to save profile' })
     }
 }
 
