@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { MockUsers } from "../mockData/MockUsers";
 import logo from "../assets/logo.png"
 
 function Authentication() {
@@ -40,25 +39,77 @@ function Authentication() {
         }
 
         // TODO: Curretly using mock users only -> implement actual backend logic
-        const user = MockUsers.find(
-            (user) => user.email == email && user.password == password
-        )
+        // const user = MockUsers.find(
+        //     (user) => user.email == email && user.password == password
+        // )
 
         console.log(isLogin ? "Logging in..." : "Signing up...", { email, password })
 
-        try {
-            // temporary authentication logic 
-            if (user) {
-                setIsAuth(true)
-                console.log("Authentication successful!")
-                navigate("/")
-            }
-            else {
-                setError("Invalid email or password")
-            }
-        } catch (err) {
-            setError("Authentication failed. Please try again.")
-        }   
+        // I have to check if the user info exists for either login or signup, cause I don't want duplicates
+        // can check if email is registered and then also if password,
+        // one account per email
+        // try to get this done by meeting on Thursday, so I can create a pr
+
+        if(!isLogin){
+            //signing up
+            try {
+                // check if email is already registered
+                const checkRes = await fetch('http://localhost:4000/api/login/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                  })
+                  const { exists } = await checkRes.json()
+                  if (exists) {
+                    setError("Email is already registered")
+                    return
+                }
+                // if not, continue to signup, add user to db
+                const res = await fetch('http://localhost:4000/api/login/signup', {
+                  method: 'POST',
+                  headers: { 'Content-type':'application/json' },
+                  body: JSON.stringify({email, password}),
+                })
+                if (res.ok) {
+                  //const savedLogin = await res.json()
+                  //console.log('Login saved: ', savedLogin)
+                  alert('Login saved successfully')
+                }
+                else {
+                  alert('Failed to save username and password, please try again!')
+                }
+              }
+              catch (err) {
+                console.error('Error: ', err)
+                alert('Error connecting to server')
+              }
+            }else{
+                // login-in logic
+                try {
+                    const res = await fetch('http://localhost:4000/api/login/authenticate', {
+                        method: 'POST',
+                        headers: { 'Content-type':'application/json' },
+                        body: JSON.stringify({ email, password })
+                      })
+                    if (res.ok) {
+                      //const savedLogin = await res.json()
+                      //console.log('Login retrieved: ', savedLogin)
+                      alert('Login retrieved successfully')
+                      setIsAuth(true)
+                      console.log("Authentication successful!")
+                      navigate("/")
+                    }
+                    else {
+                        setError("Invalid email or password")
+                        alert("Invalid email or password")
+                    }
+                  }
+                  catch (err) {
+                    console.error('Error: ', err)
+                    setError("Authentication failed. Please try again.")
+                    alert('Error connecting to server')
+                }
+        }
     }
 
     return (
