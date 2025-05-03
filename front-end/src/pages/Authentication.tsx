@@ -38,17 +38,7 @@ function Authentication() {
             return
         }
 
-        // TODO: Curretly using mock users only -> implement actual backend logic
-        // const user = MockUsers.find(
-        //     (user) => user.email == email && user.password == password
-        // )
-
         console.log(isLogin ? "Logging in..." : "Signing up...", { email, password })
-
-        // I have to check if the user info exists for either login or signup, cause I don't want duplicates
-        // can check if email is registered and then also if password,
-        // one account per email
-        // try to get this done by meeting on Thursday, so I can create a pr
 
         if(!isLogin){
             //signing up
@@ -71,8 +61,6 @@ function Authentication() {
                   body: JSON.stringify({email, password}),
                 })
                 if (res.ok) {
-                  //const savedLogin = await res.json()
-                  //console.log('Login saved: ', savedLogin)
                   alert('Login saved successfully')
                 }
                 else {
@@ -92,8 +80,6 @@ function Authentication() {
                         body: JSON.stringify({ email, password })
                       })
                     if (res.ok) {
-                      //const savedLogin = await res.json()
-                      //console.log('Login retrieved: ', savedLogin)
                       alert('Login retrieved successfully')
                       setIsAuth(true)
                       console.log("Authentication successful!")
