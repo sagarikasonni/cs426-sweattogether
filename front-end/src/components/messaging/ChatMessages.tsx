@@ -4,8 +4,9 @@ import type { ProfileModel } from "../../data/ProfileModel"
 
 interface Message {
   senderId: number;
+  chatId: number; // New field
   text: string;
-  timestamp: Date
+  timestamp: Date;
 }
 
 interface ChatMessagesProps {
@@ -16,6 +17,7 @@ interface ChatMessagesProps {
   input: string;
   setInput: React.Dispatch<React.SetStateAction<string>>;
   currentUserId: number;
+  selectedChat: number; // New field
 }
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({
@@ -25,7 +27,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   handleSend,
   input,
   setInput,
-  currentUserId
+  currentUserId,
+  selectedChat
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -54,38 +57,40 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       <div className="p-4 overflow-y-auto rounded-lg flex flex-col h-full">
         {messages.length > 0 ? (
           <div className="space-y-4">
-            {messages.map((msg, index) => {
-              const isCurrentUser = msg.senderId === currentUserId;
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: 'flex',
-                    width: '100%',
-                    justifyContent: isCurrentUser ? 'flex-end' : 'flex-start',
-                    marginBottom: '8px'
-                  }}
-                >
+            {messages
+              .filter((msg) => msg.chatId === selectedChat) // Filter messages by chatId
+              .map((msg, index) => {
+                const isCurrentUser = msg.senderId === currentUserId;
+                return (
                   <div
+                    key={index}
                     style={{
-                      borderRadius: '8px',
-                      padding: '8px 16px',
-                      maxWidth: '70%',
-                      backgroundColor: isCurrentUser ? '#3b82f6' : '#f3f4f6',
-                      color: isCurrentUser ? 'white' : '#1f2937'
+                      display: 'flex',
+                      width: '100%',
+                      justifyContent: isCurrentUser ? 'flex-end' : 'flex-start',
+                      marginBottom: '8px',
                     }}
                   >
-                    <p>{msg.text}</p>
-                    <span className="text-xs opacity-75 mt-1 block">
+                    <div
+                      style={{
+                        borderRadius: '8px',
+                        padding: '8px 16px',
+                        maxWidth: '70%',
+                        backgroundColor: isCurrentUser ? '#3b82f6' : '#f3f4f6',
+                        color: isCurrentUser ? 'white' : '#1f2937',
+                      }}
+                    >
+                      <p>{msg.text}</p>
+                      <span className="text-xs opacity-75 mt-1 block">
                         {new Date(msg.timestamp).toLocaleTimeString([], {
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         ) : (
           <p className="text-gray-500">No messages yet. Start the conversation!</p>

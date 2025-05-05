@@ -46,27 +46,71 @@ function Messaging() {
     return Object.keys(allChats)[0] ? Number.parseInt(Object.keys(allChats)[0]) : 1
   }
 
+  const [chatPreviews, setChatPreviews] = useState<{
+    chatId: number;
+    senderId: number;
+    text: string;
+    timestamp: Date;
+  }[]>([]);
+  
+  // Add this useEffect to load chat previews
+  useEffect(() => {
+    // Fetch chat previews from backend
+    fetch('http://localhost:4000/api/messages/previews')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Chat previews loaded:', data);
+        
+        // Convert string timestamps to Date objects
+        const previewsWithDates = data.map((preview: any) => ({
+          ...preview,
+          timestamp: new Date(preview.timestamp)
+        }));
+        
+        // Update mockChats with the latest messages from the backend
+        previewsWithDates.forEach((preview: any) => {
+          if (!mockChats[preview.chatId]) {
+            mockChats[preview.chatId] = [];
+          }
+          
+          // Add the message if it doesn't exist
+          const exists = mockChats[preview.chatId].some(
+            msg => msg.text === preview.text && msg.senderId === preview.senderId
+          );
+          
+          if (!exists) {
+            mockChats[preview.chatId].push({
+              senderId: preview.senderId,
+              chatId: preview.chatId,
+              text: preview.text,
+              timestamp: preview.timestamp // Already converted to Date above
+            });
+          }
+        });
+        
+        // Update activeChatIds
+        const chatIds = Object.keys(mockChats)
+          .map(id => Number(id))
+          .filter(id => mockChats[id] && mockChats[id].length > 0)
+          .sort((a, b) => b - a);
+        
+        setActiveChatIds(chatIds);
+        setChatPreviews(previewsWithDates); // Use the converted dates
+      })
+      .catch(error => {
+        console.error('Error loading chat previews:', error);
+      });
+  }, []);
+
   const [selectedChat, setSelectedChat] = useState<number>(getInitialChatId())
-  const [messages, setMessages] = useState<{ senderId: number; text: string, timestamp: Date }[]>([])
+  const [messages, setMessages] = useState<{ senderId: number; chatId: number; text: string; timestamp: Date }[]>([]);
   const [input, setInput] = useState("")
   const [activeChatIds, setActiveChatIds] = useState<number[]>([])
-
-  // Update active chat IDs when mockChats changes
-  useEffect(() => {
-    const chatIds = Object.keys(mockChats)
-      .map((id) => Number(id))
-      .filter((id) => mockChats[id] && mockChats[id].length > 0)
-      .sort((a, b) => {
-        // Sort by most recent message
-        // const aLastMsg = mockChats[a][mockChats[a].length - 1]
-        // const bLastMsg = mockChats[b][mockChats[b].length - 1]
-        // If we had timestamps, we'd use them here
-        // For now, just assume the order in the array
-        return b - a
-      })
-
-    setActiveChatIds(chatIds)
-  }, [mockChats])
 
   // Update URL when selected chat changes, but prevent scrolling
   useEffect(() => {
@@ -78,35 +122,91 @@ function Messaging() {
 
   // Load messages when selected chat changes
   useEffect(() => {
-    // Check if chat exists in mockChats, otherwise set messages to an empty array
-    const chatMessages = mockChats[selectedChat] || []
-    setMessages(chatMessages)
-  }, [selectedChat])
+    if (selectedChat !== undefined) {
+      // Fetch all messages for the selected chat from the backend
+      fetch(`http://localhost:4000/api/messages/${selectedChat}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch messages: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('Fetched messages:', data);
+          setMessages(data); // Update the messages state with the fetched data
+        })
+        .catch((error) => {
+          console.error('Error fetching messages:', error);
+        });
+    }
+  }, [selectedChat]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() && selectedChat !== undefined) {
-      const newMessage = { senderId: currentUserId, text: input, timestamp: new Date() }
+      const newMessage = {
+        senderId: currentUserId,
+        chatId: selectedChat,
+        text: input,
+        timestamp: new Date(),
+      }
+
+      // Update the UI immediately
       setMessages((prevMessages) => [...prevMessages, newMessage])
 
-      // Update mockChats to persist the message
-      if (!mockChats[selectedChat]) {
-        mockChats[selectedChat] = []
-      }
-      const updatedMessages = [...mockChats[selectedChat], newMessage]
-      mockChats[selectedChat] = updatedMessages
-      setMessages(updatedMessages)
+      try {
+        // Send the message to the backend
+        const response = await fetch("http://localhost:4000/api/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newMessage),
+        })
 
-      // If this is a new chat, add it to the active chats at the top
-      if (!activeChatIds.includes(selectedChat)) {
-        setActiveChatIds([selectedChat, ...activeChatIds])
-      } else {
-        // Move this chat to the top (most recent)
-        setActiveChatIds([selectedChat, ...activeChatIds.filter((id) => id !== selectedChat)])
+        if (!response.ok) {
+          throw new Error(`Failed to send message: ${response.status}`)
+        }
+
+        const savedMessage = await response.json()
+        console.log("Message saved to database:", savedMessage)
+
+        // Update chatPreviews immediately
+        setChatPreviews((prevPreviews) => {
+          const existingPreviewIndex = prevPreviews.findIndex((preview) => preview.chatId === selectedChat)
+
+          const updatedPreview = {
+            chatId: selectedChat,
+            senderId: currentUserId,
+            text: input,
+            timestamp: new Date(),
+          }
+
+          if (existingPreviewIndex !== -1) {
+            // Update the existing preview
+            const updatedPreviews = [...prevPreviews]
+            updatedPreviews[existingPreviewIndex] = updatedPreview
+            return updatedPreviews
+          } else {
+            // Add a new preview for the new chat
+            return [updatedPreview, ...prevPreviews]
+          }
+        })
+
+        // Update activeChatIds if this is a new chat
+        setActiveChatIds((prevIds) => {
+          if (!prevIds.includes(selectedChat)) {
+            return [selectedChat, ...prevIds]
+          }
+          return prevIds
+        })
+      } catch (error) {
+        console.error("Error sending message:", error)
       }
 
+      // Reset the input field
       setInput("")
     }
-  }
+  };
 
   const handleChatSelect = (id: number) => {
     // Prevent scrolling by using replace instead of push
@@ -116,15 +216,18 @@ function Messaging() {
   // Filter chats to only show those with messages
   const activeChats = activeChatIds.map((id) => allChats[id]).filter(Boolean)
 
-  // const activeProfile = profileData.find(p => p.id === activeConversationId);
-
   return (
     <>
       <NavBar />
       <div className="flex">
         {/* ChatSidebar Component */}
-        <ChatSidebar chats={activeChats} selectedChat={selectedChat} handleChatSelect={handleChatSelect} currentUserId={currentUserId}/>
-        {/* ChatMessages Component */}
+        <ChatSidebar 
+          chats={activeChats} 
+          selectedChat={selectedChat} 
+          handleChatSelect={handleChatSelect} 
+          currentUserId={currentUserId}
+          chatPreviews={chatPreviews} // Add this prop
+        />        {/* ChatMessages Component */}
         <ChatMessages
           // activeProfile={activeProfile || null}
           messages={messages}
@@ -133,6 +236,7 @@ function Messaging() {
           input={input}
           setInput={setInput}
           currentUserId={currentUserId}
+          selectedChat={selectedChat}
         />
       </div>
     </>

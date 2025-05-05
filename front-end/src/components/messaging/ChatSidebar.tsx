@@ -10,12 +10,27 @@ interface ChatSidebarProps {
   selectedChat: number;
   handleChatSelect: (id: number) => void;
   currentUserId: number;   
+  chatPreviews?: {
+    chatId: number;
+    senderId: number;
+    text: string;
+    timestamp: Date;
+  }[];
 }
 
-export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, handleChatSelect, currentUserId }) => {
+export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, handleChatSelect, currentUserId, chatPreviews = [] }) => {
   const [searchQuery, setSearchQuery] = useState("")
 
   const filteredChats = chats.filter((chat) => chat.profile.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const sortedChats = filteredChats.sort((a, b) => {
+    const previewA = chatPreviews.find((p) => p.chatId === a.id);
+    const previewB = chatPreviews.find((p) => p.chatId === b.id);
+
+    const timestampA = previewA ? new Date(previewA.timestamp).getTime() : 0;
+    const timestampB = previewB ? new Date(previewB.timestamp).getTime() : 0;
+
+    return timestampB - timestampA; // Sort descending by timestamp
+  });
 
   return (
     <div className="static min-h-screen bg-gray-200 p-4">
@@ -35,15 +50,25 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, h
 
       {/* Conversation List */}
       <div className="flex-1 overflow-y-auto">
-        {filteredChats.length > 0 ? (
-          filteredChats.map((chat) => {
-            const isActive = selectedChat === chat.id
-            const hasMessages = mockChats[chat.id] && mockChats[chat.id].length > 0
-            const lastMsgObj = hasMessages ? mockChats[chat.id][mockChats[chat.id].length - 1] : null;
+        {sortedChats.length > 0 ? (
+          sortedChats.map((chat) => {
+            const isActive = selectedChat === chat.id;
   
+            // First try to get the last message from chatPreviews
+            const preview = chatPreviews.find((p: { chatId: number }) => p.chatId === chat.id);
+            
+            // Fall back to mockChats if no preview is found
+            const lastMsgObj = preview
+            ? { 
+                senderId: preview.senderId, 
+                text: preview.text,
+                timestamp: new Date(preview.timestamp),
+              }
+            :  mockChats[chat.id]?.slice(-1)[0];
+            
             // Determine sender display text
             const senderDisplay = lastMsgObj 
-              ? (lastMsgObj.senderId === currentUserId ? "You" : chat.profile.name)
+              ? (lastMsgObj.senderId === currentUserId ? "You" : chat.profile.name) 
               : "";
           
             // Truncate the text: We originally limit to 15 characters,
