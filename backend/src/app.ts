@@ -1,7 +1,8 @@
 import express from 'express'
 import mongoose from 'mongoose'
-import cors, { CorsOptions } from 'cors'
+import cors from 'cors'
 import profileRoutes from '../routes/profileRoutes'
+import messageRoutes from '../routes/messageRoutes' // Import messageRoutes
 import loginRoutes from '../routes/loginRoutes'
 import dotenv from 'dotenv'
 import path from 'path'
@@ -17,6 +18,7 @@ app.use(express.json())
 
 // routing
 app.use('/api/profiles', profileRoutes)
+app.use('/api/messages', messageRoutes) // Register messageRoutes
 app.use('/api/login', loginRoutes)
 
 // serving backend through frontend to have same origin, instead of separate ports
@@ -31,6 +33,5 @@ app.get('/{*any}', (req, res) => {
 mongoose.connect(process.env.MONGODB_URI!)
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection failed: ', err))
-
 
 export default app
