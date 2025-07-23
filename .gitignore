@@ -34,3 +34,7 @@ backend/.env
 *.njsproj
 *.sln
 *.sw?
+
+# Docker
+docker-compose.override.yml
+*.pid
