@@ -47,7 +47,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               <img 
                 src={chatProfile.image} 
                 alt={chatProfile.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full rounded-full object-cover"
                 style={{ width: '100px', height: '100px', objectFit: 'cover' }}
               />
             </div>
