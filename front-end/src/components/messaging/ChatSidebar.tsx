@@ -96,7 +96,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, selectedChat, h
                   <img
                     src={chat.profile.image}
                     alt={chat.profile.name}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-full h-full object-cover"
+                    style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                   />
                 </div>
                   <div className="ml-3 flex-1">
