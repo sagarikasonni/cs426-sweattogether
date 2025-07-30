@@ -181,15 +181,20 @@ function Messaging() {
             timestamp: new Date(),
           }
 
+          let updatedPreviews;
           if (existingPreviewIndex !== -1) {
             // Update the existing preview
-            const updatedPreviews = [...prevPreviews]
+            updatedPreviews = [...prevPreviews]
             updatedPreviews[existingPreviewIndex] = updatedPreview
-            return updatedPreviews
           } else {
             // Add a new preview for the new chat
-            return [updatedPreview, ...prevPreviews]
+            updatedPreviews = [updatedPreview, ...prevPreviews]
           }
+
+          // Sort by timestamp (newest first)
+          return updatedPreviews.sort((a, b) => 
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          )
         })
 
         // Update activeChatIds if this is a new chat

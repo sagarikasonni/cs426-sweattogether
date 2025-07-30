@@ -25,9 +25,13 @@ export const cacheMessages = async (chatId: string, messages: any[]) => {
     if (!isConnected) return;
     
     try {
-        // Store messages in a Redis list, keeping only the last 10
-        await redisClient.lPush(`chat:${chatId}:messages`, JSON.stringify(messages));
-        await redisClient.lTrim(`chat:${chatId}:messages`, 0, 9);
+        // Clear existing messages for this chat
+        await redisClient.del(`chat:${chatId}:messages`);
+        
+        // Store individual messages in a Redis list, keeping only the last 10
+        for (const message of messages.slice(-10)) {
+            await redisClient.lPush(`chat:${chatId}:messages`, JSON.stringify(message));
+        }
     } catch (error) {
         console.error('Error caching messages:', error);
     }
@@ -39,7 +43,8 @@ export const getCachedMessages = async (chatId: string) => {
     
     try {
         const messages = await redisClient.lRange(`chat:${chatId}:messages`, 0, -1);
-        return messages.map(msg => JSON.parse(msg));
+        // Reverse the order to get chronological order (oldest first)
+        return messages.reverse().map(msg => JSON.parse(msg));
     } catch (error) {
         console.error('Error getting cached messages:', error);
         return [];

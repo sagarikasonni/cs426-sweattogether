@@ -43,11 +43,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       <h2 className="text-xl font-bold mb-4 flex items-center">
         {chatProfile ? (
           <>
-            <img 
-              src={chatProfile.image} 
-              alt={chatProfile.name}
-              className="rounded-full object-cover p-4"
-            />
+            <div className="w-12 h-12 rounded-full overflow-hidden mr-4 flex-shrink-0">
+              <img 
+                src={chatProfile.image} 
+                alt={chatProfile.name}
+                className="w-full h-full object-cover"
+                style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+              />
+            </div>
             {chatProfile.name}
           </>
         ) : (
