@@ -150,47 +150,38 @@ function Explore() {
   useEffect(() => {
     const updateProfiles = async () => {
       setLoading(true);
-      
-      // First apply basic filters
+    
       const filteredProfiles = getFilteredProfiles();
-      
-      // Then get ML ranking if we have profiles to rank
+    
       if (filteredProfiles.length > 0) {
         const mlRankedProfiles = await getMLRankedProfiles(filteredProfiles);
-        
-        // Sort by ML score first (highest score first), then apply user's sort preference
-        const sortedByML = mlRankedProfiles.sort((a: {profile: ProfileModel, score: number}, b: {profile: ProfileModel, score: number}) => b.score - a.score);
-        setProfilesWithScores(sortedByML);
-        
-        // Extract just the profiles for additional sorting if needed
-        const profilesOnly = sortedByML.map((item: {profile: ProfileModel, score: number}) => item.profile);
-        
-        // Apply user's sort preference (but ML ranking takes priority for ml-score option)
-        let finalProfiles = profilesOnly;
-        if (sortOption === 'ml-score') {
-          // Keep ML ranking order
-          finalProfiles = profilesOnly;
-        } else {
-          // Apply other sort options
-          finalProfiles = sortProfiles(profilesOnly, sortOption);
-          
-          // Re-sort the profiles with scores to match the final order
-          const finalProfilesWithScores = sortedByML.sort((a: {profile: ProfileModel, score: number}, b: {profile: ProfileModel, score: number}) => {
-            const aIndex = finalProfiles.findIndex((p: ProfileModel) => p.id === a.profile.id);
-            const bIndex = finalProfiles.findIndex((p: ProfileModel) => p.id === b.profile.id);
-            return aIndex - bIndex;
-          });
-          setProfilesWithScores(finalProfilesWithScores);
-        }
-        
+    
+        // Always sort by score descending
+        const sortedByScore = mlRankedProfiles.sort(
+          (a: {profile: ProfileModel, score: number}, b: {profile: ProfileModel, score: number}) => b.score - a.score
+        );
+    
+        setProfilesWithScores(sortedByScore);
+    
+        // Extract just profiles (still in score order)
+        const profilesOnly = sortedByScore.map((item: {profile: ProfileModel, score: number}) => item.profile);
+    
+        // Optional: If you still want to apply user's sort after score, do it here
+        // Otherwise, skip and just use score order
+        const finalProfiles =
+          sortOption && sortOption !== 'ml-score'
+            ? sortProfiles(profilesOnly, sortOption)
+            : profilesOnly;
+    
         setProfiles(finalProfiles);
       } else {
         setProfiles([]);
         setProfilesWithScores([]);
       }
-      
+    
       setLoading(false);
     };
+    
 
     updateProfiles();
   }, [filters, sortOption]);
