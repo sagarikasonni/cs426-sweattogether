@@ -3,60 +3,202 @@ import NavBar from '../components/NavBar.tsx';
 import ProfileCard from '../components/ProfileCard.tsx';
 import FilterBar from '../components/FilterBar.tsx';
 import { filterProfiles, sortProfiles, SortOption } from '../utils/ProfileUtils.ts';
-import profileData from '../mockData/MockProfiles.ts';
+import profileData from '../../../mockData/MockProfiles.ts';
 import { ProfileModel } from '../data/ProfileModel.ts';
+
+interface FilterState {
+  levels: string[];
+  genders: string[];
+  workoutTypes: string[];
+  maxDistance: number | null;
+  zipCode: string;
+}
 
 function Explore() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [profiles, setProfiles] = useState<ProfileModel[]>(profileData);
-  const [sortOption, setSortOption] = useState<SortOption>(() =>{
-    return (localStorage.getItem('sortOption') as SortOption) || 'name-az';
+  const [profilesWithScores, setProfilesWithScores] = useState<Array<{profile: ProfileModel, score: number}>>([]);
+  const [sortOption, setSortOption] = useState<SortOption>(() => {
+    return (localStorage.getItem('sortOption') as SortOption) || 'ml-score';
   });
-  const [loading, setLoading] = useState(true);
-  
-  const [filters, setFilters] = useState<any>(() => {
+  const [loading, setLoading] = useState(false);
+
+  const [filters, setFilters] = useState<FilterState>(() => {
     const saved = localStorage.getItem('filters');
-    return saved ? JSON.parse(saved)
-      : {
-          levels: [],
-          genders: [],
-          maxDistance: null,
-          workoutTypes: [],
-        };
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return {
+      levels: [], // Empty array = show all levels
+      genders: [], // Empty array = show all genders
+      workoutTypes: [], // Empty array = show all workout types
+      maxDistance: null, // No distance limit by default
+      zipCode: '10001' // Default: New York zip code
+    };
   });
 
   const toggleFilter = () => {
-    setIsFilterOpen(() => !isFilterOpen);
+    setIsFilterOpen((prev) => !prev);
   };
 
   const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortOption(() => event.target.value as SortOption);
+    const newSortOption = event.target.value as SortOption;
+    setSortOption(newSortOption);
+    localStorage.setItem('sortOption', newSortOption);
   };
 
   const handleFilterChange = (newFilters: any) => {
-    setFilters(() => newFilters);
+    setFilters(newFilters);
   };
 
-  // Use profile utils to filter and sort cards
-  const getFilteredAndSortedProfiles = async () => {
-    const filteredProfiles = await filterProfiles(profileData, filters, "01003", "United States"); // TODO implement profile zip and country
-    const sortedProfiles = sortProfiles(filteredProfiles, sortOption);
-    return sortedProfiles;
+  // Get filtered profiles based on current filters
+  const getFilteredProfiles = () => {
+    return profileData.filter(profile => {
+      // Filter by level - if levels array is empty, show all levels
+      if (filters.levels.length > 0 && !filters.levels.includes(profile.level)) {
+        return false;
+      }
+      
+      // Filter by gender - if genders array is empty, show all genders
+      if (filters.genders.length > 0 && !filters.genders.includes(profile.gender)) {
+        return false;
+      }
+      
+      // Filter by workout preferences - if workoutTypes array is empty, show all workouts
+      if (filters.workoutTypes.length > 0 && !filters.workoutTypes.some((w: string) => profile.workout_preferences.includes(w as any))) {
+        return false;
+      }
+      
+      // Filter by distance if zip code and max distance are set
+      if (filters.zipCode && filters.maxDistance && profile.location.zip_code) {
+        // Simple distance calculation (you could use a more sophisticated one)
+        // For now, just check if zip codes are different
+        if (filters.zipCode !== profile.location.zip_code) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  };
+
+  // Get ML-ranked profiles from backend
+  const getMLRankedProfiles = async (filteredProfiles: ProfileModel[]) => {
+    try {
+      // Create current user profile for ML matching
+      const currentUser = {
+        id: 0,
+        name: "Current User",
+        age: 25,
+        image: "",
+        bio: "",
+        level: filters.levels.length === 1 ? filters.levels[0] : "Beginner",
+        gender: filters.genders.length === 1 ? filters.genders[0] : "Male",
+        location: {
+          city: null,
+          state: null,
+          country: "United States",
+          zip_code: filters.zipCode
+        },
+        workout_preferences: filters.workoutTypes.length < 18 ? filters.workoutTypes : []
+      };
+
+      const matchRequest = {
+        current_user: currentUser,
+        all_users: filteredProfiles,
+        top_k: filteredProfiles.length // Get all profiles ranked
+      };
+
+      const response = await fetch('http://127.0.0.1:8000/match', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(matchRequest)
+      });
+
+      if (!response.ok) {
+        throw new Error('ML matching failed');
+      }
+
+      const data = await response.json();
+      console.log('ML matching response:', data);
+      
+      // Return profiles with their scores
+      if (data.matches) {
+        return data.matches.map((m: any) => ({
+          profile: m.profile,
+          score: m.score
+        }));
+      } else {
+        // Fallback: return profiles with default scores
+        return filteredProfiles.map(profile => ({
+          profile: profile,
+          score: 0.5 // Default score
+        }));
+      }
+    } catch (error) {
+      console.error('ML matching error, using filtered profiles:', error);
+      // Fallback: return profiles with default scores
+      return filteredProfiles.map(profile => ({
+        profile: profile,
+        score: 0.5 // Default score
+      }));
+    }
   };
 
   useEffect(() => {
-    const fetchProfiles = async () => {
-      const sortedProfiles = await getFilteredAndSortedProfiles();
-      setProfiles(() => sortedProfiles);
+    const updateProfiles = async () => {
+      setLoading(true);
+      
+      // First apply basic filters
+      const filteredProfiles = getFilteredProfiles();
+      
+      // Then get ML ranking if we have profiles to rank
+      if (filteredProfiles.length > 0) {
+        const mlRankedProfiles = await getMLRankedProfiles(filteredProfiles);
+        
+        // Sort by ML score first (highest score first), then apply user's sort preference
+        const sortedByML = mlRankedProfiles.sort((a: {profile: ProfileModel, score: number}, b: {profile: ProfileModel, score: number}) => b.score - a.score);
+        setProfilesWithScores(sortedByML);
+        
+        // Extract just the profiles for additional sorting if needed
+        const profilesOnly = sortedByML.map((item: {profile: ProfileModel, score: number}) => item.profile);
+        
+        // Apply user's sort preference (but ML ranking takes priority for ml-score option)
+        let finalProfiles = profilesOnly;
+        if (sortOption === 'ml-score') {
+          // Keep ML ranking order
+          finalProfiles = profilesOnly;
+        } else {
+          // Apply other sort options
+          finalProfiles = sortProfiles(profilesOnly, sortOption);
+          
+          // Re-sort the profiles with scores to match the final order
+          const finalProfilesWithScores = sortedByML.sort((a: {profile: ProfileModel, score: number}, b: {profile: ProfileModel, score: number}) => {
+            const aIndex = finalProfiles.findIndex((p: ProfileModel) => p.id === a.profile.id);
+            const bIndex = finalProfiles.findIndex((p: ProfileModel) => p.id === b.profile.id);
+            return aIndex - bIndex;
+          });
+          setProfilesWithScores(finalProfilesWithScores);
+        }
+        
+        setProfiles(finalProfiles);
+      } else {
+        setProfiles([]);
+        setProfilesWithScores([]);
+      }
+      
       setLoading(false);
     };
-    fetchProfiles();
+
+    updateProfiles();
   }, [filters, sortOption]);
 
   useEffect(() => {
     localStorage.setItem('filters', JSON.stringify(filters));
   }, [filters]);
-  
+
   useEffect(() => {
     localStorage.setItem('sortOption', sortOption);
   }, [sortOption]);
@@ -72,39 +214,69 @@ function Explore() {
       </button>
 
       <div className="flex">
-        <FilterBar isFilterOpen={isFilterOpen} filters={filters} onFilterChange={handleFilterChange} />
-        <div className='w-full'>
-          <div className={`p-4 flex ${isFilterOpen ? 'hidden' : ''} md:block justify-start`}>
-            <label htmlFor="sort" className="mr-2">Sort by:</label>
-            <select
-              id="sort"
-              value={sortOption}
-              onChange={handleSortChange}
-              className="border rounded"
-            >
-              <option value="name-az">Name (A-Z)</option>
-              <option value="level-low-high">Level (Low to High)</option>
-              <option value="level-high-low">Level (High to Low)</option>
-            </select>
+        <FilterBar
+          isFilterOpen={isFilterOpen}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+        />
+        <div className="w-full">
+          <div
+            className={`p-4 flex ${isFilterOpen ? 'hidden' : ''} md:block justify-start items-center gap-4`}
+          >
+            <div className="flex items-center gap-4 mb-4">
+              <label className="text-sm font-medium text-gray-700">Sort by:</label>
+              <select
+                value={sortOption}
+                onChange={(e) => handleSortChange(e)}
+                className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+              >
+                <option value="ml-score">ML Match Score (Best First)</option>
+                <option value="name-az">Name (A-Z)</option>
+                <option value="level-low-high">Level (Beginner → Advanced)</option>
+                <option value="level-high-low">Level (Advanced → Beginner)</option>
+              </select>
+            </div>
+            
+            {/* Filter Status Indicator */}
+            <div className="text-sm text-gray-600">
+              {filters.levels.length > 0 && (
+                <span className="mr-2">Levels: {filters.levels.join(', ')}</span>
+              )}
+              {filters.genders.length > 0 && (
+                <span className="mr-2">Genders: {filters.genders.join(', ')}</span>
+              )}
+              {filters.workoutTypes.length > 0 && (
+                <span className="mr-2">Workouts: {filters.workoutTypes.slice(0, 3).join(', ')}{filters.workoutTypes.length > 3 ? '...' : ''}</span>
+              )}
+              {filters.maxDistance && (
+                <span className="mr-2">Max Distance: {filters.maxDistance}km</span>
+              )}
+              {filters.levels.length === 0 && filters.genders.length === 0 && filters.workoutTypes.length === 0 && (
+                <span className="text-blue-600">Showing all profiles (no filters applied)</span>
+              )}
+            </div>
           </div>
 
           <div
             className="flex flex-wrap gap-8 p-4 justify-center transition-transform duration-300 max-w-full overflow-x-auto"
             onClick={() => isFilterOpen && toggleFilter()}
           >
-            {loading ? (<p></p>) : profiles.length > 0 ? (
-              profiles.map((profile) => (
+            {loading ? (
+              <p>Loading profiles...</p>
+            ) : profilesWithScores.length > 0 ? (
+              profilesWithScores.map((item) => (
                 <ProfileCard
-                  key={profile.id}
-                  id={profile.id}
-                  image={profile.image}
-                  name={profile.name}
-                  age={profile.age}
-                  gender={profile.gender}
-                  location={profile.location}
-                  level={profile.level}
-                  workout_preferences={profile.workout_preferences}
-                  bio={profile.bio}
+                  key={item.profile.id}
+                  id={item.profile.id}
+                  image={item.profile.image}
+                  name={item.profile.name}
+                  age={item.profile.age}
+                  gender={item.profile.gender}
+                  location={item.profile.location}
+                  level={item.profile.level}
+                  workout_preferences={item.profile.workout_preferences}
+                  bio={item.profile.bio}
+                  matchingScore={item.score}
                 />
               ))
             ) : (

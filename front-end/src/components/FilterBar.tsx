@@ -34,9 +34,28 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, filters, onFilterCh
         onFilterChange({ ...filters, workoutTypes: newWorkoutTypes });
     };
 
+    const clearAllFilters = () => {
+        onFilterChange({
+            levels: ['Beginner', 'Intermediate', 'Advanced'],
+            genders: ['Male', 'Female', 'Nonbinary'],
+            maxDistance: null,
+            workoutTypes: ['Balance exercises', 'Boxing', 'Calisthenics', 'Circuit training', 'CrossFit', 'Cycling', 'Dancing', 'HIIT', 'Hiking', 'Jogging', 'Pilates', 'Rock Climbing', 'Running', 'Swimming', 'Walking', 'Weightlifting', 'Yoga', 'Other'],
+            zipCode: filters.zipCode
+        });
+    };
+
     return (
         <div className={`static min-h-screen bg-gray-200 p-4 ${isFilterOpen ? '' : 'hidden'} md:block`}>
-            <h2 className="text-xl font-bold mb-4">Filter</h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Filter</h2>
+                <button
+                    type="button"
+                    onClick={clearAllFilters}
+                    className="text-sm text-blue-600 hover:text-blue-800 underline"
+                >
+                    Clear All
+                </button>
+            </div>
             <form>
                 {/* Level */}
                 <div className="mb-4">
@@ -60,7 +79,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, filters, onFilterCh
                 <div className="mb-4">
                     <h3 className="text-sm font-medium text-gray-700">Gender</h3>
                     <div className="flex flex-col space-y-2">
-                        {['Male', 'Female', 'Other'].map(gender => (
+                        {['Male', 'Female', 'Nonbinary'].map(gender => (
                             <label key={gender} className="flex items-center">
                                 <input
                                     type="checkbox"
@@ -89,7 +108,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ isFilterOpen, filters, onFilterCh
                 {/* Workout Type */}
                 <div className="mb-4">
                     <h3 className="text-sm font-medium text-gray-700">Workout Type</h3>
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-2 max-h-40 overflow-y-auto">
                     {Workouts.map(type => (
                             <label key={type} className="flex items-center">
                                 <input
