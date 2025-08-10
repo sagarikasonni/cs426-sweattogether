@@ -3,7 +3,7 @@ import Levels from "../consts/Levels";
 import CountryModel from "../data/CountryModel";
 import countryCodeMap from "../consts/CountryCodeMap";
 
-export type SortOption = 'name-az' | 'level-low-high' | 'level-high-low';
+export type SortOption = 'name-az' | 'level-low-high' | 'level-high-low' | 'ml-score';
 
 const COORD_ERROR_CODE = 99999 // Exceeds maximum lat or long -- used so API can fail silently
 
@@ -78,6 +78,11 @@ export const sortProfiles = (profiles: any[], sortOption: SortOption) => {
         }
         if (sortOption === 'level-high-low') {
             return Levels.indexOf(b.level) - Levels.indexOf(a.level);
+        }
+        if (sortOption === 'ml-score') {
+            // For ML score sorting, we assume profiles are already sorted by ML score
+            // This is just a fallback - the actual ML sorting happens in the component
+            return 0;
         }
         return 0;
     });
