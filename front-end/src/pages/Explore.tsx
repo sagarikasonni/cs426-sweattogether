@@ -32,8 +32,8 @@ function Explore() {
       levels: [], // Empty array = show all levels
       genders: [], // Empty array = show all genders
       workoutTypes: [], // Empty array = show all workout types
-      maxDistance: null, // No distance limit by default
-      zipCode: '10001' // Default: New York zip code
+      maxDistance: 100, // Default: 100km max distance
+      zipCode: '10001' // Default: New York zip code (Manhattan)
     };
   });
 
@@ -49,6 +49,34 @@ function Explore() {
 
   const handleFilterChange = (newFilters: any) => {
     setFilters(newFilters);
+  };
+
+  // Calculate distance between two zip codes (better approximation for US zip codes)
+  const calculateDistance = (zip1: string, zip2: string): number => {
+    // This is a better approximation for US zip codes
+    // US zip codes have geographic meaning - first 3 digits often indicate region
+    
+    // Extract first 3 digits (major region)
+    const region1 = parseInt(zip1.substring(0, 3));
+    const region2 = parseInt(zip2.substring(0, 3));
+    
+    if (isNaN(region1) || isNaN(region2)) {
+      return 999; // Return high distance if zip codes can't be parsed
+    }
+    
+    // Calculate distance based on region difference
+    const regionDiff = Math.abs(region1 - region2);
+    
+    // Rough distance mapping:
+    // Same region (0-2): 0-10 km
+    // Adjacent regions (3-10): 10-50 km  
+    // Nearby regions (11-50): 50-200 km
+    // Far regions (51+): 200+ km
+    
+    if (regionDiff <= 2) return regionDiff * 5; // 0-10 km
+    if (regionDiff <= 10) return 10 + (regionDiff - 3) * 5; // 10-50 km
+    if (regionDiff <= 50) return 50 + (regionDiff - 11) * 4; // 50-200 km
+    return 200 + (regionDiff - 51) * 10; // 200+ km
   };
 
   // Get filtered profiles based on current filters
@@ -71,9 +99,10 @@ function Explore() {
       
       // Filter by distance if zip code and max distance are set
       if (filters.zipCode && filters.maxDistance && profile.location.zip_code) {
-        // Simple distance calculation (you could use a more sophisticated one)
-        // For now, just check if zip codes are different
-        if (filters.zipCode !== profile.location.zip_code) {
+        const distance = calculateDistance(filters.zipCode, profile.location.zip_code);
+        console.log(`Distance from ${filters.zipCode} to ${profile.location.zip_code}: ${distance}km (max: ${filters.maxDistance}km)`);
+        if (distance > filters.maxDistance) {
+          console.log(`Filtering out ${profile.name} - too far`);
           return false;
         }
       }
