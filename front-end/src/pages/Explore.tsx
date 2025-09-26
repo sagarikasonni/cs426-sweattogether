@@ -3,7 +3,7 @@ import NavBar from '../components/NavBar.tsx';
 import ProfileCard from '../components/ProfileCard.tsx';
 import FilterBar from '../components/FilterBar.tsx';
 import { filterProfiles, sortProfiles, SortOption } from '../utils/ProfileUtils.ts';
-import profileData from '../../../mockData/MockProfiles.ts';
+import profileData from '../mockData/MockProfiles.ts';
 import { ProfileModel } from '../data/ProfileModel.ts';
 
 interface FilterState {

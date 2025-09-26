@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Message from "../models/Message";
 import Chat from "../models/ChatModel";
 import { getIO } from "../src/services/socketService";
-import { cacheMessages, getCachedMessages, addMessageToCache } from "../src/services/redisService";
+import { cacheMessages, getCachedMessages, addMessageToCache, getCacheStatus } from "../src/services/redisService";
 
 // Create a new message
 export const createMessage = async (req: Request, res: Response): Promise<any> => {
@@ -53,7 +53,9 @@ export const createMessage = async (req: Request, res: Response): Promise<any> =
     // Emit the new message through WebSocket
     try {
       const io = getIO();
-      io.to(chatId.toString()).emit('newMessage', newMessage);
+      if (io) {
+        io.to(chatId.toString()).emit('newMessage', newMessage);
+      }
     } catch (error) {
       console.error('WebSocket error:', error);
       // Continue even if WebSocket fails
@@ -93,7 +95,9 @@ export const deleteMessage = async (req: Request, res: Response): Promise<any> =
     // Emit the deletion through WebSocket
     try {
       const io = getIO();
-      io.to(message.chatId.toString()).emit('messageDeleted', { messageId, chatId: message.chatId });
+      if (io) {
+        io.to(message.chatId.toString()).emit('messageDeleted', { messageId, chatId: message.chatId });
+      }
     } catch (error) {
       console.error('WebSocket error:', error);
     }
@@ -109,13 +113,16 @@ export const deleteMessage = async (req: Request, res: Response): Promise<any> =
 export const getMessagesByChatId = async (req: Request, res: Response): Promise<any> => {
   try {
     const { chatId } = req.params;
+    const startTime = Date.now();
 
     if (!chatId) {
       return res.status(400).json({ error: "Missing chatId parameter" });
     }
 
     // Try to get messages from Redis cache first
-    let messages = await getCachedMessages(chatId.toString());
+    const cacheResult = await getCachedMessages(chatId.toString());
+    let messages = cacheResult.messages;
+    let cacheHit = cacheResult.cacheHit;
 
     // If no cached messages, fetch from MongoDB
     if (messages.length === 0) {
@@ -123,6 +130,15 @@ export const getMessagesByChatId = async (req: Request, res: Response): Promise<
       // Try to cache the messages (will be skipped if Redis is not available)
       await cacheMessages(chatId.toString(), messages);
     }
+
+    const duration = Date.now() - startTime;
+    
+    // Add performance headers for monitoring
+    res.set({
+      'X-Cache-Status': cacheHit ? 'HIT' : 'MISS',
+      'X-Response-Time': `${duration}ms`,
+      'X-Cache-Enabled': getCacheStatus().enabled ? 'true' : 'false'
+    });
 
     return res.status(200).json(messages);
   } catch (error) {
@@ -138,9 +154,9 @@ export const getChatPreviews = async (req: Request, res: Response): Promise<any>
 
     // For each chat, try to get the last message from Redis first
     const chatPreviews = await Promise.all(chats.map(async (chat) => {
-      const cachedMessages = await getCachedMessages(chat.chatId.toString());
+      const cacheResult = await getCachedMessages(chat.chatId.toString());
       // Get the last message (newest) from the cached messages
-      const lastMessage = cachedMessages.length > 0 ? cachedMessages[cachedMessages.length - 1] : chat.lastMessage;
+      const lastMessage = cacheResult.messages.length > 0 ? cacheResult.messages[cacheResult.messages.length - 1] : chat.lastMessage;
 
       return {
         chatId: chat.chatId,
