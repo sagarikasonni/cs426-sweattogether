@@ -2,9 +2,17 @@ import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { addMessageToCache } from './redisService';
 
-let io: Server;
+// Feature toggle for WebSocket
+const WEBSOCKET_ENABLED = process.env.WEBSOCKET_ENABLED !== 'false'; // Default to true
+
+let io: Server | null = null;
 
 export const initializeSocket = (httpServer: HttpServer) => {
+    if (!WEBSOCKET_ENABLED) {
+        console.log('WebSocket disabled via WEBSOCKET_ENABLED=false');
+        return null;
+    }
+
     io = new Server(httpServer, {
         cors: {
             origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -35,7 +43,7 @@ export const initializeSocket = (httpServer: HttpServer) => {
             await addMessageToCache(chatId, message);
             
             // Broadcast the message to all users in the chat room
-            io.to(chatId).emit('newMessage', message);
+            io!.to(chatId).emit('newMessage', message);
         });
 
         socket.on('disconnect', () => {
@@ -47,8 +55,14 @@ export const initializeSocket = (httpServer: HttpServer) => {
 };
 
 export const getIO = () => {
-    if (!io) {
-        throw new Error('Socket.io not initialized!');
+    if (!WEBSOCKET_ENABLED || !io) {
+        return null; // Return null instead of throwing error when disabled
     }
     return io;
-}; 
+};
+
+// Get WebSocket status for monitoring
+export const getWebSocketStatus = () => ({
+    enabled: WEBSOCKET_ENABLED,
+    initialized: io !== null
+}); 

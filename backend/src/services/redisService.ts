@@ -1,28 +1,39 @@
 import { createClient } from 'redis';
 
-const redisClient = createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
+// Feature toggle for Redis caching
+const CACHE_ENABLED = process.env.CACHE_ENABLED === 'true';
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
-redisClient.on('error', (err) => console.error('Redis Client Error:', err));
-redisClient.on('connect', () => console.log('Connected to Redis'));
-
+let redisClient: any = null;
 let isConnected = false;
 
-// Connect to Redis
-(async () => {
-    try {
-        await redisClient.connect();
-        isConnected = true;
-    } catch (error) {
-        console.error('Failed to connect to Redis:', error);
-        isConnected = false;
-    }
-})();
+// Initialize Redis client only if caching is enabled
+if (CACHE_ENABLED) {
+    redisClient = createClient({
+        url: REDIS_URL
+    });
+
+    redisClient.on('error', (err: any) => console.error('Redis Client Error:', err));
+    redisClient.on('connect', () => console.log('Connected to Redis'));
+
+    // Connect to Redis
+    (async () => {
+        try {
+            await redisClient.connect();
+            isConnected = true;
+            console.log('Redis caching enabled');
+        } catch (error) {
+            console.error('Failed to connect to Redis:', error);
+            isConnected = false;
+        }
+    })();
+} else {
+    console.log('Redis caching disabled via CACHE_ENABLED=false');
+}
 
 // Cache the last 10 messages for a chat
 export const cacheMessages = async (chatId: string, messages: any[]) => {
-    if (!isConnected) return;
+    if (!CACHE_ENABLED || !isConnected) return;
     
     try {
         // Clear existing messages for this chat
@@ -39,21 +50,22 @@ export const cacheMessages = async (chatId: string, messages: any[]) => {
 
 // Get cached messages for a chat
 export const getCachedMessages = async (chatId: string) => {
-    if (!isConnected) return [];
+    if (!CACHE_ENABLED || !isConnected) return { messages: [], cacheHit: false };
     
     try {
         const messages = await redisClient.lRange(`chat:${chatId}:messages`, 0, -1);
         // Reverse the order to get chronological order (oldest first)
-        return messages.reverse().map(msg => JSON.parse(msg));
+        const parsedMessages = messages.reverse().map((msg: string) => JSON.parse(msg));
+        return { messages: parsedMessages, cacheHit: messages.length > 0 };
     } catch (error) {
         console.error('Error getting cached messages:', error);
-        return [];
+        return { messages: [], cacheHit: false };
     }
 };
 
 // Add a new message to cache
 export const addMessageToCache = async (chatId: string, message: any) => {
-    if (!isConnected) return;
+    if (!CACHE_ENABLED || !isConnected) return;
     
     try {
         await redisClient.lPush(`chat:${chatId}:messages`, JSON.stringify(message));
@@ -62,5 +74,11 @@ export const addMessageToCache = async (chatId: string, message: any) => {
         console.error('Error adding message to cache:', error);
     }
 };
+
+// Get cache status for monitoring
+export const getCacheStatus = () => ({
+    enabled: CACHE_ENABLED,
+    connected: isConnected
+});
 
 export default redisClient; 

@@ -1,0 +1,31 @@
+config:
+  target: "http://127.0.0.1:4000"
+  phases:
+    - duration: 60
+      arrivalRate: 50
+    - duration: 120
+      arrivalRate: 300
+    - duration: 60
+      arrivalRate: 0
+  defaults:
+    headers:
+      Content-Type: "application/json"
+scenarios:
+  - name: "Message API Load Test"
+    weight: 100
+    flow:
+      - get:
+          url: "/api/messages/chat-1"
+          capture:
+            - json: "$"
+              as: "messages"
+      - post:
+          url: "/api/messages"
+          json:
+            senderId: "user-{{ $randomInt(1, 100) }}"
+            chatId: "chat-{{ $randomInt(1, 10) }}"
+            text: "Load test message {{ $timestamp }}"
+      - get:
+          url: "/api/messages/previews"
+      - get:
+          url: "/api/messages/status"

@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import mockChats from "../../../../mockData/MockChats"
+import mockChats from "../../mockData/MockChats"
 
 interface ChatSidebarProps {
   chats: { id: number; profile: { name: string; image: string } }[];

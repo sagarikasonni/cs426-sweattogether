@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import NavBar from "../components/NavBar"
-import profileData from "../../../mockData/MockProfiles"
-import mockChats from "../../../mockData/MockChats"
+import profileData from "../mockData/MockProfiles.ts"
+import mockChats from "../mockData/MockChats.ts"
 import { ChatSidebar } from "../components/messaging/ChatSidebar"
 import ChatMessages from "../components/messaging/ChatMessages"
 
