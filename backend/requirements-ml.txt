@@ -1,0 +1,7 @@
+# Optional: enables TRUE semantic vector embeddings for the agent's ranker.
+#   pip install -r requirements-ml.txt
+#
+# Without this, recommender.py falls back to a lightweight sklearn
+# HashingVectorizer (bag-of-words). Install this to use dense sentence
+# embeddings (all-MiniLM-L6-v2) instead. NOTE: pulls in PyTorch (large).
+sentence-transformers

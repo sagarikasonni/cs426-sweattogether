@@ -4,7 +4,9 @@ import { Rate } from 'k6/metrics';
 
 export const cache_hit_rate = new Rate('cache_hit_rate');
 
-const BASE_URL = 'http://127.0.0.1:4000';
+// Host is configurable via env var (defaults to localhost):
+//   k6 run -e BASE_URL=http://127.0.0.1:4000 test_toggles.js
+const BASE_URL = __ENV.BASE_URL || 'http://127.0.0.1:4000';
 
 export default function () {  
   // Test status endpoint

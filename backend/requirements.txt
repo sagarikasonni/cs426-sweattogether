@@ -1,0 +1,18 @@
+# Python dependencies for the SweatTogether matching + agent services.
+#
+# Run the combined server (serves both /match and /agent-match on port 8000):
+#   uvicorn agent:app --host 127.0.0.1 --port 8000 --reload
+#
+# The natural-language agent uses LLaMA-3.1-8B via an OpenAI-compatible API.
+# Configure with env vars (falls back to a deterministic parser if unset):
+#   LLM_API_BASE   default: https://api.groq.com/openai/v1
+#   LLM_API_KEY    your provider key (or GROQ_API_KEY)
+#   LLM_MODEL      default: llama-3.1-8b-instant
+
+fastapi
+uvicorn
+pydantic
+numpy
+scikit-learn
+geopy
+httpx

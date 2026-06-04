@@ -14,6 +14,13 @@ interface FilterState {
   zipCode: string;
 }
 
+interface ParsedFilters {
+  activities: string[];
+  availability: string;
+  level: string;
+  max_distance_km: number | null;
+}
+
 function Explore() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [profiles, setProfiles] = useState<ProfileModel[]>(profileData);
@@ -22,6 +29,12 @@ function Explore() {
     return (localStorage.getItem('sortOption') as SortOption) || 'ml-score';
   });
   const [loading, setLoading] = useState(false);
+
+  // Natural-language agent search (additive; does not replace the filter flow)
+  const [agentQuery, setAgentQuery] = useState('');
+  const [agentLoading, setAgentLoading] = useState(false);
+  const [agentExplanation, setAgentExplanation] = useState<string | null>(null);
+  const [parsedFilters, setParsedFilters] = useState<ParsedFilters | null>(null);
 
   const [filters, setFilters] = useState<FilterState>(() => {
     const saved = localStorage.getItem('filters');
@@ -176,43 +189,95 @@ function Explore() {
     }
   };
 
-  useEffect(() => {
-    const updateProfiles = async () => {
-      setLoading(true);
-    
-      const filteredProfiles = getFilteredProfiles();
-    
-      if (filteredProfiles.length > 0) {
-        const mlRankedProfiles = await getMLRankedProfiles(filteredProfiles);
-    
-        // Always sort by score descending
-        const sortedByScore = mlRankedProfiles.sort(
-          (a: {profile: ProfileModel, score: number}, b: {profile: ProfileModel, score: number}) => b.score - a.score
-        );
-    
-        setProfilesWithScores(sortedByScore);
-    
-        // Extract just profiles (still in score order)
-        const profilesOnly = sortedByScore.map((item: {profile: ProfileModel, score: number}) => item.profile);
-    
-        // Optional: If you still want to apply user's sort after score, do it here
-        // Otherwise, skip and just use score order
-        const finalProfiles =
-          sortOption && sortOption !== 'ml-score'
-            ? sortProfiles(profilesOnly, sortOption)
-            : profilesOnly;
-    
-        setProfiles(finalProfiles);
-      } else {
-        setProfiles([]);
-        setProfilesWithScores([]);
-      }
-    
-      setLoading(false);
-    };
-    
+  // The existing filter + ML (/match) flow, extracted so the natural-language
+  // search can fall back to it when the query is empty.
+  const updateProfiles = async () => {
+    setLoading(true);
 
+    const filteredProfiles = getFilteredProfiles();
+
+    if (filteredProfiles.length > 0) {
+      const mlRankedProfiles = await getMLRankedProfiles(filteredProfiles);
+
+      // Always sort by score descending
+      const sortedByScore = mlRankedProfiles.sort(
+        (a: {profile: ProfileModel, score: number}, b: {profile: ProfileModel, score: number}) => b.score - a.score
+      );
+
+      setProfilesWithScores(sortedByScore);
+
+      // Extract just profiles (still in score order)
+      const profilesOnly = sortedByScore.map((item: {profile: ProfileModel, score: number}) => item.profile);
+
+      // Optional: If you still want to apply user's sort after score, do it here
+      // Otherwise, skip and just use score order
+      const finalProfiles =
+        sortOption && sortOption !== 'ml-score'
+          ? sortProfiles(profilesOnly, sortOption)
+          : profilesOnly;
+
+      setProfiles(finalProfiles);
+    } else {
+      setProfiles([]);
+      setProfilesWithScores([]);
+    }
+
+    setLoading(false);
+  };
+
+  // Natural-language search via the agent (/agent-match). Falls back to the
+  // existing filter flow when the query is empty.
+  const handleAgentSearch = async () => {
+    const query = agentQuery.trim();
+
+    if (!query) {
+      // Empty query: clear agent output and use the existing /match flow.
+      setAgentExplanation(null);
+      setParsedFilters(null);
+      await updateProfiles();
+      return;
+    }
+
+    setAgentLoading(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/agent-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query,
+          user_id: '0',
+          all_users: profileData,
+          top_k: profileData.length,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Agent matching failed');
+      }
+
+      const data = await response.json();
+
+      // Keep the existing profilesWithScores shape so ProfileCard is unchanged.
+      const matches: Array<{ profile: ProfileModel; score: number }> = (data.matches || []).map(
+        (m: any) => ({ profile: m.profile, score: m.score })
+      );
+
+      setProfilesWithScores(matches);
+      setProfiles(matches.map((m) => m.profile));
+      setAgentExplanation(data.explanation || null);
+      setParsedFilters(data.parsed_filters || null);
+    } catch (error) {
+      console.error('Agent matching error:', error);
+      setAgentExplanation('Sorry, the search agent is unavailable right now. Please try the filters instead.');
+      setParsedFilters(null);
+    } finally {
+      setAgentLoading(false);
+    }
+  };
+
+  useEffect(() => {
     updateProfiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, sortOption]);
 
   useEffect(() => {
@@ -240,6 +305,77 @@ function Explore() {
           onFilterChange={handleFilterChange}
         />
         <div className="w-full">
+          {/* Natural-language search agent (additive to the filter bar) */}
+          <div className={`p-4 ${isFilterOpen ? 'hidden' : ''} md:block`}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAgentSearch();
+              }}
+              className="flex flex-col sm:flex-row gap-2"
+            >
+              <input
+                type="text"
+                value={agentQuery}
+                onChange={(e) => setAgentQuery(e.target.value)}
+                placeholder="Describe your ideal workout partner..."
+                className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="submit"
+                disabled={agentLoading}
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-medium px-5 py-2 rounded-md text-sm whitespace-nowrap"
+              >
+                {agentLoading ? 'Searching...' : 'Find Matches'}
+              </button>
+            </form>
+
+            {agentLoading && (
+              <p className="mt-2 text-sm text-gray-500">Finding your best matches...</p>
+            )}
+
+            {!agentLoading && agentExplanation && (
+              <p className="mt-3 text-sm text-gray-800 bg-blue-50 border border-blue-100 rounded-md px-3 py-2">
+                {agentExplanation}
+              </p>
+            )}
+
+            {!agentLoading && parsedFilters && (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-gray-500">Understood as:</span>
+                {parsedFilters.activities.map((activity) => (
+                  <span
+                    key={`activity-${activity}`}
+                    className="text-xs bg-green-100 text-green-800 rounded-full px-3 py-1"
+                  >
+                    {activity}
+                  </span>
+                ))}
+                {parsedFilters.level && (
+                  <span className="text-xs bg-purple-100 text-purple-800 rounded-full px-3 py-1">
+                    Level: {parsedFilters.level}
+                  </span>
+                )}
+                {parsedFilters.availability && (
+                  <span className="text-xs bg-yellow-100 text-yellow-800 rounded-full px-3 py-1">
+                    Availability: {parsedFilters.availability}
+                  </span>
+                )}
+                {parsedFilters.max_distance_km != null && (
+                  <span className="text-xs bg-orange-100 text-orange-800 rounded-full px-3 py-1">
+                    Within {parsedFilters.max_distance_km} km
+                  </span>
+                )}
+                {parsedFilters.activities.length === 0 &&
+                  !parsedFilters.level &&
+                  !parsedFilters.availability &&
+                  parsedFilters.max_distance_km == null && (
+                    <span className="text-xs text-gray-400">No specific filters detected</span>
+                  )}
+              </div>
+            )}
+          </div>
+
           <div
             className={`p-4 flex ${isFilterOpen ? 'hidden' : ''} md:block justify-start items-center gap-4`}
           >

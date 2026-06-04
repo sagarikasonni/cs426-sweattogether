@@ -38,3 +38,26 @@ backend/.env
 # Docker
 docker-compose.override.yml
 *.pid
+
+# Python virtual environments (never commit these)
+matching_env/
+front-end/matching_env/
+backend/matching_env/
+venv/
+.venv/
+env/
+
+# Python caches & build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Coverage data (the .coveragerc config IS tracked; this generated data is not)
+.coverage
+.coverage.*
+htmlcov/
+
+# Large binary libs that should never be in git
+*.dylib
+*.so

@@ -21,7 +21,9 @@ export const options = {
   },
 };
 
-const WS_URL = 'ws://127.0.0.1:4000/socket.io/?EIO=4&transport=websocket';
+// Host is configurable via env var (defaults to localhost):
+//   k6 run -e WS_HOST=127.0.0.1:4000 ws_test.js
+const WS_URL = `ws://${__ENV.WS_HOST || '127.0.0.1:4000'}/socket.io/?EIO=4&transport=websocket`;
 
 export default function () {
   const chatId = `chat-${Math.floor(Math.random() * 10) + 1}`;
