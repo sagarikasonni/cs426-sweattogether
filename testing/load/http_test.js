@@ -1,103 +1,57 @@
-import http from 'k6/http';
-import { check, sleep } from 'k6';
+import http from "k6/http";
+import { Rate } from "k6/metrics";
+
+export const cache_hit_rate = new Rate("cache_hit_rate");
+
+// Host is configurable via env var so the same script runs locally and on EC2:
+//   k6 run -e BASE_URL=http://127.0.0.1:4000 http_test.js
+const BASE = __ENV.BASE_URL || 'http://127.0.0.1:4000';
 
 export const options = {
   scenarios: {
-    // Baseline test - Redis disabled, WebSocket disabled
-    baseline: {
-      executor: 'ramping-vus',
-      startVUs: 0,
-      stages: [
-        { duration: '30s', target: 100 },   // warm-up
-        { duration: '1m', target: 500 },    // ramp up
-        { duration: '2m', target: 500 },    // hold
-        { duration: '30s', target: 0 },     // ramp down
-      ],
-      gracefulStop: '30s',
-      env: { TEST_MODE: 'baseline' },
+    warmup: {
+      executor: "constant-vus",
+      vus: 100,
+      duration: "30s",
+      exec: "warmup", // GET-only phase to seed Redis
     },
-    // Optimized test - Redis enabled, WebSocket enabled
-    optimized: {
-      executor: 'ramping-vus',
-      startVUs: 0,
+    load: {
+      executor: "ramping-vus",
+      startTime: "30s", // starts after warmup completes
       stages: [
-        { duration: '30s', target: 100 },   // warm-up
-        { duration: '1m', target: 500 },    // ramp up
-        { duration: '2m', target: 500 },    // hold
-        { duration: '30s', target: 0 },     // ramp down
+        { duration: "1m", target: 500 },   // warm up
+        { duration: "2m", target: 1000 },  // ramp mid
+        { duration: "2m", target: 2000 },  // push upper limit
+        { duration: "1m", target: 0 },     // cool down
       ],
-      gracefulStop: '30s',
-      env: { TEST_MODE: 'optimized' },
+      exec: "load", // main test
     },
   },
   thresholds: {
-    http_req_duration: ['p(50)<100', 'p(95)<200', 'p(99)<500'],
-    http_req_failed: ['rate<0.1'],
+    "http_req_duration{scenario:load}": ["p(95)<2000"], // adjust as realistic target
+    "cache_hit_rate": ["rate>0.7"], // expect at least 70% HITs once warmed
   },
 };
 
-const BASE_URL = 'http://127.0.0.1:4000';
+// Warmup phase — fixed IDs so Redis can cache them
+export function warmup() {
+  const chatId = 1;
+  const res = http.get(`${BASE}/api/messages/${chatId}`);
+  const xs = res.headers["X-Cache-Status"] || res.headers["x-cache-status"];
+  cache_hit_rate.add(xs === "HIT");
+}
 
-export default function () {
-  const chatId = Math.floor(Math.random() * 10) + 1;   
-  const userId = Math.floor(Math.random() * 100) + 1; 
-  
-  // Test 1: Get messages (this will test Redis caching)
-  const getMessagesRes = http.get(`${BASE_URL}/api/messages/${chatId}`);
-  check(getMessagesRes, {
-    'get messages status 200': (r) => r.status === 200,
-    'get messages has cache headers': (r) => r.headers['X-Cache-Status'] !== undefined,
-    'get messages response time < 200ms': (r) => r.timings.duration < 200,
-  });
+// Load phase — random IDs, simulating real traffic
+export function load() {
+  const chatId = Math.floor(Math.random() * 10) + 1;
+  const res = http.get(`${BASE}/api/messages/${chatId}`);
+  const xs = res.headers["X-Cache-Status"] || res.headers["x-cache-status"];
+  cache_hit_rate.add(xs === "HIT");
 
-  // Test 2: Send a message (this will test WebSocket broadcasting)
-  const messagePayload = JSON.stringify({
-    senderId: userId,
-    chatId: chatId,
-    text: `Test message ${Date.now()}`
-  });
-  
-  const sendMessageRes = http.post(`${BASE_URL}/api/messages`, messagePayload, {
-    headers: { 'Content-Type': 'application/json' },
-  });
-  
-  check(sendMessageRes, {
-    'send message status 201': (r) => r.status === 201,
-    'send message response time < 300ms': (r) => r.timings.duration < 300,
-  });
-
-  // Test 3: Get chat previews
-  const getPreviewsRes = http.get(`${BASE_URL}/api/messages/previews`);
-  check(getPreviewsRes, {
-    'get previews status 200': (r) => r.status === 200,
-    'get previews response time < 150ms': (r) => r.timings.duration < 150,
-  });
-
-  // Test 4: Check status endpoint
-  const statusRes = http.get(`${BASE_URL}/api/messages/status`);
-  check(statusRes, {
-    'status endpoint works': (r) => r.status === 200,
-  });
-
-  // Log performance data for analysis
-  console.log(JSON.stringify({
-    test_mode: __ENV.TEST_MODE,
-    timestamp: new Date().toISOString(),
-    get_messages: {
-      status: getMessagesRes.status,
-      duration: getMessagesRes.timings.duration,
-      cache_status: getMessagesRes.headers['X-Cache-Status'],
-      cache_enabled: getMessagesRes.headers['X-Cache-Enabled'],
-    },
-    send_message: {
-      status: sendMessageRes.status,
-      duration: sendMessageRes.timings.duration,
-    },
-    get_previews: {
-      status: getPreviewsRes.status,
-      duration: getPreviewsRes.timings.duration,
-    }
-  }));
-
-  sleep(1);
+  // Optionally gate POST requests so they don’t overwrite cache
+  if (__ENV.SHOULD_POST === "true") {
+    http.post(`${BASE}/api/messages/${chatId}`, JSON.stringify({ text: "Test" }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 }

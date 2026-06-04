@@ -1,0 +1,7 @@
+# Dev/test-only dependencies. Install with:
+#   pip install -r requirements.txt -r requirements-dev.txt
+# Then run the unit tests from the backend/ directory:
+#   pytest                      # run tests
+#   pytest --cov --cov-report=term-missing   # with coverage
+pytest
+pytest-cov

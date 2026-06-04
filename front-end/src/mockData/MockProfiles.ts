@@ -15,6 +15,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Beginner",
         workout_preferences: ["Running", "Swimming"],
+        availability: ["Early mornings", "Weekends"],
         bio: "Just somebody looking for a workout partner.",
     },
     {
@@ -31,6 +32,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Advanced",
         workout_preferences: ["Running", "Cycling"],
+        availability: ["Evenings", "Weekdays"],
         bio: "I like running and biking!",
     },
     {
@@ -47,6 +49,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Beginner",
         workout_preferences: ["Hiking", "Swimming"],
+        availability: ["Mornings", "Weekends"],
         bio: "I'm a swimmer.",
     },
     {
@@ -63,6 +66,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Advanced",
         workout_preferences: ["CrossFit", "Jogging"],
+        availability: ["Early mornings", "Weekdays"],
         bio: "I'm an athlete in NY.",
     },
     {
@@ -79,6 +83,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Beginner",
         workout_preferences: ["Walking"],
+        availability: ["Afternoons", "Weekends"],
         bio: "I love to take walks around New York.",
     },
     {
@@ -95,6 +100,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Intermediate",
         workout_preferences: ["Running", "Swimming"],
+        availability: ["Early mornings", "Mornings", "Weekends"],
         bio: "I like running and swimming",
     },
     {
@@ -111,6 +117,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Intermediate",
         workout_preferences: ["Running", "Swimming", "Yoga"],
+        availability: ["Evenings", "Weekends"],
         bio: "I like all kinds of workouts!",
     },
     {
@@ -127,6 +134,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Advanced",
         workout_preferences: ["Swimming", "Balance exercises"],
+        availability: ["Mornings", "Weekdays"],
         bio: "Exercising outside is great.",
     },
     {
@@ -143,6 +151,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Beginner",
         workout_preferences: ["Boxing", "Rock Climbing", "Yoga"],
+        availability: ["Evenings", "Nights"],
         bio: "I'm trying out some new activities.",
     },
     {
@@ -159,6 +168,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Intermediate",
         workout_preferences: ["Boxing", "Rock Climbing", "Weightlifting", "Walking"],
+        availability: ["Afternoons", "Weekdays"],
         bio: "Just somebody looking for a workout partner.",
     },
     {
@@ -175,6 +185,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Beginner",
         workout_preferences: ["HIIT", "Dancing", "Hiking"],
+        availability: ["Nights", "Weekends"],
         bio: "I love to dance.",
     },
     {
@@ -191,6 +202,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Beginner",
         workout_preferences: ["CrossFit", "Swimming"],
+        availability: ["Mornings", "Weekdays"],
         bio: "Working out is fun.",
     },
     {
@@ -205,6 +217,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Beginner",
         workout_preferences: ["Running", "Swimming"],
+        availability: ["Early mornings", "Weekends"],
         bio: "Just somebody looking for a workout buddy.",
     },
     {
@@ -219,7 +232,8 @@ const profileData: ProfileModel[] = [
             zip_code: "T0B 3L0",
         },
         level: "Intermediate",
-        workout_preferences: ["Running", "Swimming"],
+        workout_preferences: ["Running", "Swimming", "Pilates"],
+        availability: ["Evenings", "Weekends"],
         bio: "The gym is nice.",
     },
     {
@@ -234,6 +248,7 @@ const profileData: ProfileModel[] = [
         },
         level: "Advanced",
         workout_preferences: ["Pilates", "Swimming", "Weightlifting"],
+        availability: ["Mornings", "Weekdays"],
         bio: "Just somebody looking for a spotter.",
     }
 ];

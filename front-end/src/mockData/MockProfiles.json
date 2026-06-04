@@ -13,6 +13,7 @@
         },
         "level": "Beginner",
         "workout_preferences": ["Running", "Swimming"],
+        "availability": ["Early mornings", "Weekends"],
         "bio": "Just somebody looking for a workout partner."
     },
     {
@@ -29,6 +30,7 @@
         },
         "level": "Advanced",
         "workout_preferences": ["Running", "Cycling"],
+        "availability": ["Evenings", "Weekdays"],
         "bio": "I like running and biking!"
     },
     {
@@ -45,6 +47,7 @@
         },
         "level": "Beginner",
         "workout_preferences": ["Hiking", "Swimming"],
+        "availability": ["Mornings", "Weekends"],
         "bio": "I'm a swimmer."
     },
     {
@@ -61,6 +64,7 @@
         },
         "level": "Advanced",
         "workout_preferences": ["CrossFit", "Jogging"],
+        "availability": ["Early mornings", "Weekdays"],
         "bio": "I'm an athlete in NY."
     },
     {
@@ -77,6 +81,7 @@
         },
         "level": "Beginner",
         "workout_preferences": ["Walking"],
+        "availability": ["Afternoons", "Weekends"],
         "bio": "I love to take walks around New York."
     },
     {
@@ -93,6 +98,7 @@
         },
         "level": "Intermediate",
         "workout_preferences": ["Running", "Swimming"],
+        "availability": ["Early mornings", "Mornings", "Weekends"],
         "bio": "I like running and swimming"
     },
     {
@@ -109,6 +115,7 @@
         },
         "level": "Intermediate",
         "workout_preferences": ["Running", "Swimming", "Yoga"],
+        "availability": ["Evenings", "Weekends"],
         "bio": "I like all kinds of workouts!"
     },
     {
@@ -125,6 +132,7 @@
         },
         "level": "Advanced",
         "workout_preferences": ["Swimming", "Balance exercises"],
+        "availability": ["Mornings", "Weekdays"],
         "bio": "Exercising outside is great."
     },
     {
@@ -141,6 +149,7 @@
         },
         "level": "Beginner",
         "workout_preferences": ["Boxing", "Rock Climbing", "Yoga"],
+        "availability": ["Evenings", "Nights"],
         "bio": "I'm trying out some new activities."
     },
     {
@@ -157,6 +166,7 @@
         },
         "level": "Intermediate",
         "workout_preferences": ["Boxing", "Rock Climbing", "Weightlifting", "Walking"],
+        "availability": ["Afternoons", "Weekdays"],
         "bio": "Just somebody looking for a workout partner."
     },
     {
@@ -173,6 +183,7 @@
         },
         "level": "Beginner",
         "workout_preferences": ["HIIT", "Dancing", "Hiking"],
+        "availability": ["Nights", "Weekends"],
         "bio": "I love to dance."
     },
     {
@@ -189,6 +200,7 @@
         },
         "level": "Beginner",
         "workout_preferences": ["CrossFit", "Swimming"],
+        "availability": ["Mornings", "Weekdays"],
         "bio": "Working out is fun."
     },
     {
@@ -203,6 +215,7 @@
         },
         "level": "Beginner",
         "workout_preferences": ["Running", "Swimming"],
+        "availability": ["Early mornings", "Weekends"],
         "bio": "Just somebody looking for a workout buddy."
     },
     {
@@ -217,7 +230,8 @@
             "zip_code": "T0B 3L0"
         },
         "level": "Intermediate",
-        "workout_preferences": ["Running", "Swimming"],
+        "workout_preferences": ["Running", "Swimming", "Pilates"],
+        "availability": ["Evenings", "Weekends"],
         "bio": "The gym is nice."
     },
     {
@@ -232,6 +246,7 @@
         },
         "level": "Advanced",
         "workout_preferences": ["Pilates", "Swimming", "Weightlifting"],
+        "availability": ["Mornings", "Weekdays"],
         "bio": "Just somebody looking for a spotter."
     }
 ]

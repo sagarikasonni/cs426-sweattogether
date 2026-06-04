@@ -1,0 +1,11 @@
+[run]
+# Measure coverage only for our application modules, not the test files or deps.
+source =
+    matching_algo
+    agent
+    recommender
+omit =
+    tests/*
+
+[report]
+show_missing = True

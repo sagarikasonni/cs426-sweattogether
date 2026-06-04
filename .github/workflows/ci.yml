@@ -1,0 +1,54 @@
+name: CI
+
+# Run fast, dependency-free unit tests on every push / PR to main.
+# (Integration & latency tests for messaging/Redis/WebSockets live under
+# testing/load and are run separately with k6/Artillery against live services.)
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-tests:
+    name: Backend (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run unit tests with coverage
+        working-directory: backend
+        run: pytest -q --cov --cov-report=term-missing
+
+  frontend-tests:
+    name: Frontend (vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: front-end/package-lock.json
+
+      - name: Install dependencies
+        working-directory: front-end
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        working-directory: front-end
+        run: npm run test:coverage
